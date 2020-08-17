@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>easyLib</RootNamespace>
+    <AssemblyName>ezLib</AssemblyName>
   </PropertyGroup>
 
 </Project>
