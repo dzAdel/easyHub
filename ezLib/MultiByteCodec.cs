@@ -7,13 +7,15 @@ namespace easyLib
 {
     public static class MultiByteCodec
     {
-        public static byte[] GetBytes(short s) => GetBytes((ulong)s);
+        public static byte[] GetBytes(short s) => GetBytes((ulong)(ushort)s);
 
         public static short GetShort(IEnumerable<byte> bytes)
         {
             Assert(bytes != null);
             return (short)Decode(bytes, sizeof(short));
         }
+
+        public static byte[] GetBytes(ushort s) => GetBytes((ulong)s);
 
         public static ushort GetUShort(IEnumerable<byte> bytes)
         {
@@ -22,7 +24,7 @@ namespace easyLib
             return (ushort)Decode(bytes, sizeof(ushort));
         }
 
-        public static byte[] GetBytes(int n) => GetBytes((ulong)n);
+        public static byte[] GetBytes(int n) => GetBytes((ulong)(uint)n);
 
         public static int GetInt(IEnumerable<byte> bytes)
         {

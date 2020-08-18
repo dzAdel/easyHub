@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace easyTest
 {
-    public class TestResult
+    public interface ITest
     {
-        
+        string Name { get; }
+        IEnumerable<ITestResult> Run();
     }
 }
