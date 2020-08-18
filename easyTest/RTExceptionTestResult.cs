@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static easyLib.DebugHelper;
 
 
@@ -12,7 +9,7 @@ namespace easyTest
     {
         readonly Exception m_ex;
 
-        public RTExceptionInfo(Exception ex):
+        public RTExceptionInfo(Exception ex) :
             base("Unasserted exception catched")
         {
             Assert(ex != null);

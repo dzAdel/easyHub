@@ -21,7 +21,7 @@ namespace easyTest
                 m_results.Clear();
                 Start();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 m_results.Add(new RTExceptionInfo(ex));
             }
@@ -46,8 +46,8 @@ namespace easyTest
             [CallerFilePath] string file = null,
             [CallerLineNumber] int line = 0,
             [CallerArgumentExpression("exp")] string testExp = null)
-        { 
-            if(!exp)
+        {
+            if (!exp)
             {
                 var res = new AssertionFailureInfo
                 {
@@ -65,7 +65,7 @@ namespace easyTest
                 [CallerMemberName] string caller = null,
                 [CallerFilePath] string file = null,
                 [CallerLineNumber] int line = 0)
-            where T: Exception
+            where T : Exception
         {
             try
             {
@@ -80,9 +80,9 @@ namespace easyTest
 
                 m_results.Add(res);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(!(ex is T))
+                if (!(ex is T))
                 {
                     var res = new ExceptionFailureInfo(typeof(T), ex)
                     {

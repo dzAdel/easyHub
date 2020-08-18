@@ -11,7 +11,7 @@ namespace easyTest
         public IEnumerable<string> Report
         {
             get
-            {               
+            {
                 if (!string.IsNullOrWhiteSpace(CallerName))
                     yield return $"In {CallerName}";
 

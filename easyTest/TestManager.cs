@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using static easyLib.DebugHelper;
 
 namespace easyTest
@@ -34,8 +33,8 @@ namespace easyTest
                 {
                     Console.WriteLine($" ------- Running {t.Name}, pass {i}...");
                     Console.WriteLine("|");
-                                        
-                    IEnumerable<ITestResult> res = t.Run();                    
+
+                    IEnumerable<ITestResult> res = t.Run();
                     int nErr = 0;
 
                     foreach (ITestResult tr in res)
@@ -53,7 +52,7 @@ namespace easyTest
 
                     Console.WriteLine("|");
                     Console.Write(" - Done.");
-                    
+
                     if (nErr <= 0)
                         Console.WriteLine(" (No Failure.)");
                     else
@@ -65,7 +64,7 @@ namespace easyTest
             }
 
             Console.WriteLine($"*** {m_tests.Count} test(s) executed.");
-            Console.WriteLine($"*** {passCount} passes.");
+            Console.WriteLine($"*** {passCount} passe(s).");
             Console.WriteLine($"*** {totalErr} error(s).");
         }
     }

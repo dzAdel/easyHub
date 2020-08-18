@@ -1,7 +1,6 @@
 ﻿using easyTest;
-using Microsoft.VisualBasic;
 using System;
-using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace TestApp
 {
@@ -11,8 +10,9 @@ namespace TestApp
         {
             var mgr = new TestManager();
             mgr.AddTest(new MultiByteCodecTest());
+            mgr.AddTest(new BinStreamTest());
 
-            mgr.Execute(byte.MaxValue);
+            mgr.Execute(SampleFactory.CreateBytes(1).First());
         }
     }
 }
