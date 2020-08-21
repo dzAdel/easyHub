@@ -1,17 +1,13 @@
 ﻿using easyLib;
-using easyTest;
-using System;
-using System.Collections.Generic;
+using easyLib.Test;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace TestApp
 {
-    public class MultiByteCodecTest : UnitTest
+    class MultiByteCodecTest : UnitTest
     {
-        public MultiByteCodecTest():
+        public MultiByteCodecTest() :
             base("MultiByteCodec Test")
         { }
 

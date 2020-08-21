@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using static easyLib.DebugHelper;
 
-namespace easyTest
+namespace easyLib.Test
 {
     public class TestManager
     {

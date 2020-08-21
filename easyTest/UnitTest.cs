@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using static easyLib.DebugHelper;
 
 
-namespace easyTest
+namespace easyLib.Test
 {
     public abstract partial class UnitTest : ITest
     {

@@ -1,5 +1,5 @@
 ﻿using easyLib.IO;
-using easyTest;
+using easyLib.Test;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace TestApp
 {
-    public sealed partial class BinStreamTest : UnitTest
+    sealed partial class BinStreamTest : UnitTest
     {
         Stream m_stream;
 
@@ -31,10 +31,13 @@ namespace TestApp
             {
                 Setup(out TestData sample);
 
-                Write(sample, ByteOrder.LittleEndian);
+                var writer = new BinStreamWriter(m_stream, ByteOrder.LittleEndian);
+                Write(writer, sample);
 
                 m_stream.Position = 0;
-                Verify(sample, ByteOrder.LittleEndian);
+
+                var reader = new BinStreamReader(m_stream, ByteOrder.LittleEndian);
+                Verify(reader, sample);
             }
             finally
             {
@@ -48,10 +51,13 @@ namespace TestApp
             {
                 Setup(out TestData sample);
 
-                Write(sample, ByteOrder.BigEndian);
+                var writer = new BinStreamWriter(m_stream, ByteOrder.BigEndian);
+                Write(writer, sample);
 
                 m_stream.Position = 0;
-                Verify(sample, ByteOrder.BigEndian);
+
+                var reader = new BinStreamReader(m_stream, ByteOrder.BigEndian);
+                Verify(reader, sample);
             }
             finally
             {
@@ -65,12 +71,19 @@ namespace TestApp
             {
                 Setup(out TestData sample);
 
-                Write(sample, ByteOrder.BigEndian);
-                Write(sample, ByteOrder.LittleEndian);
+                var writer = new BinStreamWriter(m_stream, ByteOrder.BigEndian);
+                Write(writer, sample);
+
+                writer.ByteOrder = ByteOrder.LittleEndian;
+                Write(writer, sample);
 
                 m_stream.Position = 0;
-                Verify(sample, ByteOrder.BigEndian);
-                Verify(sample, ByteOrder.LittleEndian);
+
+                var reader = new BinStreamReader(m_stream, ByteOrder.BigEndian);
+                Verify(reader, sample);
+
+                reader.ByteOrder = ByteOrder.LittleEndian;
+                Verify(reader, sample);
             }
             finally
             {
@@ -83,10 +96,11 @@ namespace TestApp
         void Setup(out TestData data)
         {
             m_stream = new MemoryStream();
-            IEnumerable<int> seqInts = SampleFactory.CreateInts(0, byte.MaxValue);
+
+            IEnumerable<int> seqLen = SampleFactory.CreateInts(0, ushort.MaxValue);
 
             data.BoolValue = SampleFactory.CreateBools().First();
-            data.Buffer = SampleFactory.CreateBytes().Take(seqInts.First()).ToArray();
+            data.Buffer = SampleFactory.CreateBytes().Take(seqLen.First()).ToArray();
             data.ByteValue = SampleFactory.CreateBytes().First();
             data.CharValue = SampleFactory.CreateChars().First();
             data.DecimalValue = SampleFactory.CreateDecimals().First();
@@ -103,10 +117,8 @@ namespace TestApp
             data.UShortValue = SampleFactory.CreateUShorts().First();
         }
 
-        void Write(in TestData data, ByteOrder endianess)
+        void Write(IBinStreamWriter writer, in TestData data)
         {
-            var writer = new BinStreamWriter(m_stream, endianess);
-
             writer.Write(data.BoolValue);
             writer.Write(data.Buffer);
             writer.Write(data.ByteValue);
@@ -125,9 +137,9 @@ namespace TestApp
             writer.Write(data.UShortValue);
         }
 
-        void Verify(in TestData sample, ByteOrder endianess)
+        void Verify(IBinStreamReader reader, in TestData sample)
         {
-            var reader = new BinStreamReader(m_stream, endianess);
+
 
             var data = new TestData();
 

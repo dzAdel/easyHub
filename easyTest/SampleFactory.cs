@@ -4,7 +4,7 @@ using System.Linq;
 using static easyLib.DebugHelper;
 
 
-namespace easyTest
+namespace easyLib.Test
 {
     public static class SampleFactory
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using static easyLib.DebugHelper;
 
 
-namespace easyTest
+namespace easyLib.Test
 {
     partial class UnitTest
     {

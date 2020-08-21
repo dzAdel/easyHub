@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "easyLib", "ezLib\easyLib.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "easyDB", "ezDB\easyDB.csproj", "{1D1CCB37-09D9-4A53-BFE6-7ECDFAE9271D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "easyTest", "easyTest\easyTest.csproj", "{AFA12440-D5E5-4989-8FC0-845F6A8642CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "easyTest", "easyTest\easyTest.csproj", "{AFA12440-D5E5-4989-8FC0-845F6A8642CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{A2A246D0-864F-47D5-A914-5742F837F9A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{A2A246D0-864F-47D5-A914-5742F837F9A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "easyADT", "easyADT\easyADT.csproj", "{93EE8386-66A6-4EEE-82BB-4AB23A7285C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A2A246D0-864F-47D5-A914-5742F837F9A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2A246D0-864F-47D5-A914-5742F837F9A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2A246D0-864F-47D5-A914-5742F837F9A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93EE8386-66A6-4EEE-82BB-4AB23A7285C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93EE8386-66A6-4EEE-82BB-4AB23A7285C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93EE8386-66A6-4EEE-82BB-4AB23A7285C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93EE8386-66A6-4EEE-82BB-4AB23A7285C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

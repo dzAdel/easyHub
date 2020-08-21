@@ -1,13 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>ezADT</AssemblyName>
+    <RootNamespace>easyLib.ADT</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\easyADT\easyADT.csproj" />
-    <ProjectReference Include="..\easyTest\easyTest.csproj" />
     <ProjectReference Include="..\ezLib\easyLib.csproj" />
   </ItemGroup>
 
