@@ -1,15 +1,13 @@
 ﻿using easyLib.ADT.Trees;
 using easyLib.Test;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace TestApp.ADT
 {
 
-    class TreeNodeTest : UnitTest
+    class BasicTreeNodeTest : UnitTest
     {
-        public TreeNodeTest() :
+        public BasicTreeNodeTest() :
             base("Tree<T>.Node Test")
         { }
 
@@ -86,7 +84,7 @@ namespace TestApp.ADT
 
         void SingleNodeTest()
         {
-            var node = new Tree<int>.Node(0);
+            var node = new BasicTree<int>.Node(0);
 
             Ensure(node.IsLeaf);
             Ensure(node.IsRoot);
@@ -100,40 +98,40 @@ namespace TestApp.ADT
         }
 
 
-        uint CountDescendant(Tree<int>.Node node)
+        uint CountDescendant(BasicTree<int>.Node node)
         {
             if (node.IsLeaf)
                 return 1;
 
             uint n = 1;
-            foreach (Tree<int>.Node child in node.Children)
+            foreach (BasicTree<int>.Node child in node.Children)
                 n += CountDescendant(child);
 
             return n;
         }        
 
-        Tree<int>.Node CreateNodes(int levels)
+        BasicTree<int>.Node CreateNodes(int levels)
         {
-            var root = new Tree<int>.Node(1);
+            var root = new BasicTree<int>.Node(1);
 
             if (levels > 1)
                 CreateLevel(root, 2);
 
-            System.Diagnostics.Debug.WriteLine($"{CountDescendant(root)} nodes created.");
+            //System.Diagnostics.Debug.WriteLine($"{CountDescendant(root)} nodes created.");
 
             return root;
 
 
-            void CreateLevel(Tree<int>.Node parent, int lvlNber)
+            void CreateLevel(BasicTree<int>.Node parent, int lvlNber)
             {   
                 for (int i = 0; i < lvlNber; ++i)
                 {
-                    var node = new Tree<int>.Node(lvlNber);
+                    var node = new BasicTree<int>.Node(lvlNber);
                     parent.AppendChild(node);
                 }
 
                 if (lvlNber < levels)
-                    foreach (Tree<int>.Node child in parent.Children)
+                    foreach (BasicTree<int>.Node child in parent.Children)
                         CreateLevel(child, lvlNber + 1);
             }
         }

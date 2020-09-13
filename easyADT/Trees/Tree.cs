@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using static easyLib.DebugHelper;
+
 
 namespace easyLib.ADT.Trees
 {
+
     public interface ITree<out TItem, TNode>
         where TNode : INode<TItem>
     {
@@ -15,34 +17,84 @@ namespace easyLib.ADT.Trees
         bool IsEmpty { get; }
         bool Contains(TNode node);
         uint GetNodeCount();
-        uint GetHeight();       
-        IEnumerable<ITree<TItem, TNode>> SubTrees { get; }
+        uint GetHeight();
     }
+    //-------------------------------------------------
 
-
-
-    public sealed partial class Tree<T>: ITree<T, Tree<T>.Node>
+    public abstract class Tree<TItem, TNode> : ITree<TItem, TNode>
+        where TNode : class, INode<TItem>
     {
-        public Tree() => throw new NotImplementedException();
-        public Tree(T root) => throw new NotImplementedException();
-        public Tree(Node root, IEnumerable<Node> children = null) => throw new NotImplementedException();
+        TNode m_root;
 
-        public Node Root => throw new NotImplementedException();               
-        public bool IsEmpty => throw new NotImplementedException();
-        public IEnumerable<Node> Nodes => throw new NotImplementedException();
-        public IEnumerable<T> Items => throw new NotImplementedException();
-        public IEnumerable<Tree<T>> SubTrees => throw new NotImplementedException();        
+        public TNode Root => m_root;
+        public IEnumerable<TNode> Nodes => this.Enumerate(TraversalOrder.PreOrder);
+        public IEnumerable<TItem> Items => Nodes.Select(node => node.Item);
+        public bool IsEmpty => m_root == null;
 
-        public bool Contains(Node node) => throw new NotImplementedException();
-        public uint GetNodeCount() => throw new NotImplementedException();        
-        public uint GetHeight() => throw new NotImplementedException();
+        public bool Contains(TNode node)
+        {
+            Assert(node != null);
 
-        public void Clear() => throw new NotImplementedException();
-        
-        public static Tree<T> Merge(params Tree<T>[] trees) => throw new NotImplementedException();
-        public static Tree<T> Merge(IEnumerable<Tree<T>> trees) => throw new NotImplementedException();
-        public static IEnumerable<Tree<T>> Split(Tree<T> tree) => throw new NotImplementedException();
+            INode<TItem> nd = node;
 
-        IEnumerable<ITree<T, Node>> ITree<T, Node>.SubTrees => throw new NotImplementedException();
+            do
+            {
+                if (nd == m_root)
+                    return true;
+
+                nd = nd.Parent;
+
+            } while (nd != null);
+
+            return false;
+        }
+
+        public uint GetHeight()
+        {
+            Assert(!IsEmpty);
+
+            if (m_root.Degree == 0)
+                return 0;
+
+            var heights = new uint[m_root.Degree];
+
+            Parallel.ForEach(m_root.Children, (node, _, ndx)
+                => heights[ndx] = GetHeight(node));
+
+            return heights.Max() + 1;
+
+            //---
+            uint GetHeight(INode<TItem> node)
+            {
+                uint h = 0;
+                foreach (TNode nd in node.Children)
+                    h = Math.Max(h, GetHeight(nd) + 1);
+
+                return h;
+            }
+        }
+
+        public uint GetNodeCount() => m_root?.GetDescendantCount() ?? 0;
+
+        public void Clear()
+        {
+            m_root = null;
+
+            Assert(ClassInvariant);
+        }
+
+
+        //protected:
+        protected Tree(TNode root = null)
+        {
+            Assert(root == null || root.Parent == null);
+
+            m_root = root;
+
+            Assert(ClassInvariant);
+        }
+
+
+        protected virtual bool ClassInvariant => (IsEmpty || Root.Parent == null);
     }
 }

@@ -76,7 +76,7 @@ namespace easyLib.IO
             if (b > 1)
                 throw new CorruptedStreamException();
 
-            return b == 0 ? false : true;
+            return b == 0 ? false : true;            
         }
 
         public byte ReadByte()

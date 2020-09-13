@@ -10,9 +10,10 @@ namespace TestApp
             var mgr = new TestManager();
             mgr.AddTest(new MultiByteCodecTest());
             mgr.AddTest(new BinStreamTest());
-            mgr.AddTest(new ADT.TreeNodeTest());
+            mgr.AddTest(new ADT.BasicTreeNodeTest());
+            mgr.AddTest(new ADT.BasicTreeTest());
 
-            mgr.Execute(SampleFactory.CreateBytes(1).First());
+            mgr.Execute(SampleFactory.CreateSBytes(1).First());
         }
     }
 }
