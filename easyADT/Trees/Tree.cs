@@ -16,8 +16,8 @@ namespace easyLib.ADT.Trees
         IEnumerable<TItem> Items { get; }
         bool IsEmpty { get; }
         bool Contains(TNode node);
-        uint GetNodeCount();
-        uint GetHeight();
+        int GetNodeCount();
+        int GetHeight();
     }
     //-------------------------------------------------
 
@@ -49,14 +49,14 @@ namespace easyLib.ADT.Trees
             return false;
         }
 
-        public uint GetHeight()
+        public int GetHeight()
         {
             Assert(!IsEmpty);
 
             if (m_root.Degree == 0)
                 return 0;
 
-            var heights = new uint[m_root.Degree];
+            var heights = new int[m_root.Degree];
 
             Parallel.ForEach(m_root.Children, (node, _, ndx)
                 => heights[ndx] = GetHeight(node));
@@ -64,9 +64,9 @@ namespace easyLib.ADT.Trees
             return heights.Max() + 1;
 
             //---
-            uint GetHeight(INode<TItem> node)
+            int GetHeight(INode<TItem> node)
             {
-                uint h = 0;
+                int h = 0;
                 foreach (TNode nd in node.Children)
                     h = Math.Max(h, GetHeight(nd) + 1);
 
@@ -74,7 +74,7 @@ namespace easyLib.ADT.Trees
             }
         }
 
-        public uint GetNodeCount() => m_root?.GetDescendantCount() ?? 0;
+        public int GetNodeCount() => m_root?.GetDescendantCount() ?? 0;
 
         public void Clear()
         {
@@ -85,7 +85,7 @@ namespace easyLib.ADT.Trees
 
 
         //protected:
-        protected Tree(TNode root = null)
+        protected Tree(TNode root)
         {
             Assert(root == null || root.Parent == null);
 
@@ -93,7 +93,6 @@ namespace easyLib.ADT.Trees
 
             Assert(ClassInvariant);
         }
-
 
         protected virtual bool ClassInvariant => (IsEmpty || Root.Parent == null);
     }

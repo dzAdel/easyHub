@@ -1,12 +1,12 @@
 ﻿using easyLib.IO;
 using easyLib.Test;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace TestApp
 {
+    //Assume SampleFactoryTest, MultiByteCodecTest ok
     sealed partial class BinStreamTest : UnitTest
     {
         Stream m_stream;
@@ -22,73 +22,115 @@ namespace TestApp
             LittleEndianTest();
             BigEndianTest();
             MixedByteOrderTest();
+            SeekableStreamTest();
         }
 
+
         //private:
+        void SeekableStreamTest()
+        {
+            Enumerable.Range(0, SampleFactory.CreateBytes(min: 1).First()).All(_ => SeekTest());
+
+            bool SeekTest()
+            {
+                try
+                {
+                    Setup(out TestData sample);
+                    var writer = new SeekableStreamWriter(m_stream, ByteOrder.LittleEndian);
+                    writer.Write(SampleFactory.CreateBytes().Take(RandNber()).ToArray());
+                    long pos = writer.Position;
+                    Write(writer, sample);
+                                       
+
+                    var reader = new SeekableStreamReader(m_stream, ByteOrder.LittleEndian);
+                    reader.Position = pos;
+                    return Verify(reader, sample);
+                }
+                finally
+                {
+                    Clean();
+                }
+            }
+
+            byte RandNber() => SampleFactory.CreateBytes().First();
+        }
         void LittleEndianTest()
         {
-            try
-            {
-                Setup(out TestData sample);
+            Func<bool> tst = () =>
+                {
+                    try
+                    {
+                        Setup(out TestData sample);
 
-                var writer = new BinStreamWriter(m_stream, ByteOrder.LittleEndian);
-                Write(writer, sample);
+                        var writer = new BinStreamWriter(m_stream, ByteOrder.LittleEndian);
+                        Write(writer, sample);
 
-                m_stream.Position = 0;
+                        m_stream.Position = 0;
 
-                var reader = new BinStreamReader(m_stream, ByteOrder.LittleEndian);
-                Verify(reader, sample);
-            }
-            finally
-            {
-                Clean();
-            }
+                        var reader = new BinStreamReader(m_stream, ByteOrder.LittleEndian);
+                        return Verify(reader, sample);
+                    }
+                    finally
+                    {
+                        Clean();
+                    }
+                };
+
+
+            Enumerable.Range(0, SampleFactory.CreateBytes(min: 1).First()).All(_ => tst());
         }
 
         void BigEndianTest()
         {
-            try
+            Func<bool> tst = () =>
             {
-                Setup(out TestData sample);
+                try
+                {
+                    Setup(out TestData sample);
 
-                var writer = new BinStreamWriter(m_stream, ByteOrder.BigEndian);
-                Write(writer, sample);
+                    var writer = new BinStreamWriter(m_stream, ByteOrder.BigEndian);
+                    Write(writer, sample);
 
-                m_stream.Position = 0;
+                    m_stream.Position = 0;
 
-                var reader = new BinStreamReader(m_stream, ByteOrder.BigEndian);
-                Verify(reader, sample);
-            }
-            finally
-            {
-                Clean();
-            }
+                    var reader = new BinStreamReader(m_stream, ByteOrder.BigEndian);
+                    return Verify(reader, sample);
+                }
+                finally
+                {
+                    Clean();
+                }
+            };
+
+            Enumerable.Range(0, SampleFactory.CreateBytes(min: 1).First()).All(_ => tst());
         }
 
         void MixedByteOrderTest()
         {
-            try
+            Func<bool> tst = () =>
             {
-                Setup(out TestData sample);
+                try
+                {
+                    Setup(out TestData sample);
 
-                var writer = new BinStreamWriter(m_stream, ByteOrder.BigEndian);
-                Write(writer, sample);
+                    var writer = new BinStreamWriter(m_stream, ByteOrder.BigEndian);
+                    Write(writer, sample);
 
-                writer.ByteOrder = ByteOrder.LittleEndian;
-                Write(writer, sample);
+                    writer.ByteOrder = ByteOrder.LittleEndian;
+                    Write(writer, sample);
 
-                m_stream.Position = 0;
+                    m_stream.Position = 0;
 
-                var reader = new BinStreamReader(m_stream, ByteOrder.BigEndian);
-                Verify(reader, sample);
+                    var reader = new BinStreamReader(m_stream, ByteOrder.BigEndian);
+                    return Verify(reader, sample);
+                }
+                finally
+                {
+                    Clean();
+                }
+            };
 
-                reader.ByteOrder = ByteOrder.LittleEndian;
-                Verify(reader, sample);
-            }
-            finally
-            {
-                Clean();
-            }
+            Enumerable.Range(0, SampleFactory.CreateBytes(min: 1).First()).All(_ => tst());
         }
 
         void Clean() => m_stream?.Dispose();
@@ -97,10 +139,8 @@ namespace TestApp
         {
             m_stream = new MemoryStream();
 
-            IEnumerable<int> seqLen = SampleFactory.CreateInts(0, ushort.MaxValue);
-
             data.BoolValue = SampleFactory.CreateBools().First();
-            data.Buffer = SampleFactory.CreateBytes().Take(seqLen.First()).ToArray();
+            data.Buffer = SampleFactory.CreateBytes().Take(SampleFactory.CreateInts(0, ushort.MaxValue).First()).ToArray();
             data.ByteValue = SampleFactory.CreateBytes().First();
             data.CharValue = SampleFactory.CreateChars().First();
             data.DecimalValue = SampleFactory.CreateDecimals().First();
@@ -137,10 +177,8 @@ namespace TestApp
             writer.Write(data.UShortValue);
         }
 
-        void Verify(IBinStreamReader reader, in TestData sample)
+        bool Verify(IBinStreamReader reader, in TestData sample)
         {
-
-
             var data = new TestData();
 
             data.BoolValue = reader.ReadBool();
@@ -160,9 +198,7 @@ namespace TestApp
             data.ULongValue = reader.ReadULong();
             data.UShortValue = reader.ReadUShort();
 
-            Ensure(data.Equals(sample));
+            return data.Equals(sample);
         }
-
-
     }
 }

@@ -37,7 +37,7 @@ namespace easyLib.IO
             public bool MoveNext()
             {
                 if (m_disposed)
-                    throw new InvalidOperationException();
+                    throw new ObjectDisposedException(null);
 
                 m_current = m_reader.ReadByte();
                 return m_current >= 0;

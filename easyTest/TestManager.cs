@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using static easyLib.DebugHelper;
 
 namespace easyLib.Test
@@ -7,6 +11,9 @@ namespace easyLib.Test
     public class TestManager
     {
         readonly List<ITest> m_tests = new List<ITest>();
+        readonly Dictionary<string, List<IEnumerable<ITestResult>>> m_reports =
+            new Dictionary<string, List<IEnumerable<ITestResult>>>();
+
 
         public void AddTest(ITest test)
         {
@@ -17,7 +24,9 @@ namespace easyLib.Test
 
         public void Execute(int passCount = 1)
         {
-            Assert(passCount >= 1);
+            Assert(passCount > 0);
+
+            m_reports.Clear();
 
             if (m_tests.Count == 0)
             {
@@ -25,47 +34,116 @@ namespace easyLib.Test
                 return;
             }
 
-            int totalErr = 0;
+            Console.WriteLine($"Running {passCount} passes tests...");
+            Parallel.ForEach(m_tests, RunTest);
 
-            foreach (ITest t in m_tests)
+            Console.WriteLine("All tests finished. Press any key to continue.");
+            Console.ReadKey();
+
+            if (LogRepport(Console.Out) > 0)
             {
+                string fName = "AppTestLog.txt";
+
+                using (TextWriter txtWrier = File.CreateText(fName))
+                {
+                    txtWrier.WriteLine(DateTime.Now);
+                    txtWrier.WriteLine();
+
+                    LogRepport(txtWrier);
+                }
+
+                var psi = new ProcessStartInfo(fName)
+                {
+                    UseShellExecute = true
+                };
+
+                Process.Start(psi);
+            }
+
+
+            //--------------------
+            void RunTest(ITest tst)
+            {
+                var results = new List<IEnumerable<ITestResult>>();
+
+                lock (m_reports)
+                    m_reports.Add(tst.Name, results);
+
+                var sw = new Stopwatch();
+                sw.Start();
+
                 for (int i = 0; i < passCount; ++i)
                 {
-                    Console.WriteLine($" ------- Running {t.Name}, pass {i}...");
-                    Console.WriteLine("|");
+                    IEnumerable<ITestResult> strs = tst.Run();
+                    results.Add(strs);
+                }
 
-                    IEnumerable<ITestResult> res = t.Run();
-                    int nErr = 0;
+                sw.Stop();
 
-                    foreach (ITestResult tr in res)
+                Console.WriteLine($"{tst.Name} done. {ElapsedTime(sw.ElapsedMilliseconds)}");
+
+                //-----------------
+
+                string ElapsedTime(long ms)
+                {
+                    var ts = TimeSpan.FromMilliseconds(ms);
+                    var sb = new StringBuilder("(");
+
+                    if (ts.Hours > 0)
+                        sb.Append(ts.Hours).Append("h:").Append(ts.Minutes).Append("m:").Append(ts.Seconds).Append('s');
+                    else if (ts.Minutes > 0)
+                        sb.Append(ts.Minutes).Append("m:").Append(ts.Seconds).Append('s');
+                    else if (ts.Seconds > 0)
+                        sb.Append(ts.Seconds).Append("s:").Append(ts.Milliseconds).Append("ms");
+                    else
+                        sb.Append(ts.Milliseconds).Append("ms");
+
+                    sb.Append(')');
+
+                    return sb.ToString();
+                }
+
+            }
+        }
+
+        //private:
+        int LogRepport(TextWriter txtWriter)
+        {
+            int nErr = 0;
+
+            foreach (string key in m_reports.Keys)
+            {
+                txtWriter.WriteLine($"*** {key}");
+                List<IEnumerable<ITestResult>> tstResults = m_reports[key];
+
+                int passCount = 1;
+                foreach (IEnumerable<ITestResult> passResult in tstResults)
+                {
+                    txtWriter.WriteLine($"Pass: {passCount++}");
+
+                    foreach (ITestResult tr in passResult)
                     {
-                        Console.WriteLine($"|> {tr.Caption}");
+                        txtWriter.WriteLine($"\t{tr.Caption}");
 
-                        foreach (string msg in tr.Report)
-                            Console.WriteLine($"|  {msg}");
+                        foreach (string str in tr.Report)
+                            txtWriter.WriteLine($"\t{str}");
 
                         if (tr.IsFailure)
                             ++nErr;
 
-                        Console.WriteLine("|");
+                        txtWriter.WriteLine();
                     }
-
-                    Console.WriteLine("|");
-                    Console.Write(" - Done.");
-
-                    if (nErr <= 0)
-                        Console.WriteLine(" (No Failure.)");
-                    else
-                        Console.WriteLine($" ({nErr} Failures.)");
-
-                    Console.WriteLine();
-                    totalErr += nErr;
                 }
+
+                txtWriter.WriteLine($"*** {key} done.");
+                txtWriter.WriteLine();
             }
 
-            Console.WriteLine($"*** {m_tests.Count} test(s) executed.");
-            Console.WriteLine($"*** {passCount} passe(s).");
-            Console.WriteLine($"*** {totalErr} error(s).");
+            txtWriter.WriteLine($"*** {m_tests.Count} test(s) executed.");
+            Console.WriteLine($"*** {nErr} error(s).");
+
+            return nErr;
         }
+
     }
 }

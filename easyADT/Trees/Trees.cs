@@ -17,7 +17,7 @@ namespace easyLib.ADT.Trees
 
     public static class Trees
     {
-        public static int InternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree)
+        public static int GetInternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree)
             where TNode : INode<TItem>
         {
             Assert(tree != null);
@@ -44,7 +44,7 @@ namespace easyLib.ADT.Trees
             return len;
         }
 
-        public static int ExternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree)
+        public static int GetExternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree)
             where TNode : INode<TItem>
         {
             Assert(tree != null);
@@ -69,12 +69,10 @@ namespace easyLib.ADT.Trees
                         queue.Enqueue((child, h + 1));
             }
 
-            System.Diagnostics.Debug.WriteLine($"len = {len}");
             return len;
         }
 
-
-        public static int WeightedExternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree, Func<TNode, int> leafWeight)
+        public static int GetWeightedExternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree, Func<TNode, int> leafWeight)
             where TNode : INode<TItem>
         {
             Assert(tree != null);
@@ -100,7 +98,6 @@ namespace easyLib.ADT.Trees
                         queue.Enqueue((child, h + 1));
             }
 
-            System.Diagnostics.Debug.WriteLine($"len = {len}");
             return len;
         }
 
@@ -149,7 +146,7 @@ namespace easyLib.ADT.Trees
             where TNode : INode<TItem>
         {
             IEnumerable<TNode> res = Enumerable.Repeat(root, 1);
-            uint childCount = root.Degree;
+            int childCount = root.Degree;
 
             if (childCount == 1)
                 res = res.Concat(PreOrder((TNode)root.Children.Single()));
@@ -189,7 +186,7 @@ namespace easyLib.ADT.Trees
             where TNode : INode<TItem>
         {
             IEnumerable<TNode> res;
-            uint childCount = root.Degree;
+            int childCount = root.Degree;
 
             if (childCount == 1)
                 res = PostOrder((TNode)root.Children.Single());
@@ -231,7 +228,7 @@ namespace easyLib.ADT.Trees
         {
             IEnumerable<TNode> rootOnly = Enumerable.Repeat(root, 1);
             IEnumerable<TNode> res;
-            uint childCount = root.Degree;
+            int childCount = root.Degree;
 
             if (childCount == 1)
                 res = InOrder((TNode)root.Children.Single()).Concat(rootOnly);

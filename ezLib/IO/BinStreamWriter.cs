@@ -171,7 +171,6 @@ namespace easyLib.IO
 
         public void Write(DateTime t) => Write(t.Ticks);
 
-
         //protected:
         protected Stream OutputStream => m_outStream;
 

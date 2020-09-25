@@ -2,9 +2,10 @@
 using easyLib.Test;
 using System.Linq;
 
-
 namespace TestApp
 {
+    //Assume SampleFactoryTest ok
+    
     class MultiByteCodecTest : UnitTest
     {
         public MultiByteCodecTest() :
@@ -13,7 +14,7 @@ namespace TestApp
 
         //protected:
         protected override void Start()
-        {
+        {            
             MBShortTest();
             MBUShortTest();
             MBIntTest();
@@ -26,57 +27,58 @@ namespace TestApp
         //private:
         void MBShortTest()
         {
-            short sh = SampleFactory.CreateShorts().First();
+            var seq = from short sh in SampleFactory.CreateShorts().Take(RandByte)
+                      let bytes = MultiByteCodec.GetBytes(sh)
+                      select (sh, bytes);
 
-            byte[] bytes = MultiByteCodec.GetBytes(sh);
-            short val = MultiByteCodec.GetShort(bytes);
-
-            Ensure(val == sh);
+            Ensure(seq.All(item => MultiByteCodec.GetShort(item.bytes) == item.sh));
         }
 
         void MBUShortTest()
         {
-            ushort sample = SampleFactory.CreateUShorts().First();
-            byte[] bytes = MultiByteCodec.GetBytes(sample);
-            ushort us = MultiByteCodec.GetUShort(bytes);
+            var seq = from ushort ush in SampleFactory.CreateUShorts().Take(RandByte)
+                      let bytes = MultiByteCodec.GetBytes(ush)
+                      select (ush, bytes);
 
-            Ensure(sample == us);
+            Ensure(seq.All(item => MultiByteCodec.GetUShort(item.bytes) == item.ush));
         }
 
         void MBIntTest()
         {
-            int sample = SampleFactory.CreateInts().First();
-            byte[] bytes = MultiByteCodec.GetBytes(sample);
-            int i = MultiByteCodec.GetInt(bytes);
+            var seq = from int n in SampleFactory.CreateInts().Take(RandByte)
+                      let bytes = MultiByteCodec.GetBytes(n)
+                      select (n, bytes);
 
-            Ensure(sample == i);
+            Ensure(seq.All(item => MultiByteCodec.GetInt(item.bytes) == item.n));
         }
 
         void MBUIntTest()
         {
-            uint sample = SampleFactory.CreateUInts().First();
-            byte[] bytes = MultiByteCodec.GetBytes(sample);
-            uint ui = MultiByteCodec.GetUInt(bytes);
+            var seq = from uint ui in SampleFactory.CreateUInts().Take(RandByte)
+                      let bytes = MultiByteCodec.GetBytes(ui)
+                      select (ui, bytes);
 
-            Ensure(ui == sample);
+            Ensure(seq.All(item => MultiByteCodec.GetUInt(item.bytes) == item.ui));
         }
 
         void MBLongTest()
         {
-            long sample = SampleFactory.CreateLongs().First();
-            byte[] bytes = MultiByteCodec.GetBytes(sample);
-            long l = MultiByteCodec.GetLong(bytes);
+            var seq = from long l in SampleFactory.CreateLongs().Take(RandByte)
+                      let bytes = MultiByteCodec.GetBytes(l)
+                      select (l, bytes);
 
-            Ensure(l == sample);
+            Ensure(seq.All(item => MultiByteCodec.GetLong(item.bytes) == item.l));
         }
 
         void MBULongTest()
         {
-            ulong sample = SampleFactory.CreateULongs().First();
-            byte[] bytes = MultiByteCodec.GetBytes(sample);
-            ulong ul = MultiByteCodec.GetULong(bytes);
+            var seq = from ulong ul in SampleFactory.CreateULongs().Take(RandByte)
+                      let bytes = MultiByteCodec.GetBytes(ul)
+                      select (ul, bytes);
 
-            Ensure(ul == sample);
+            Ensure(seq.All(item => MultiByteCodec.GetULong(item.bytes) == item.ul));
         }
+
+        static byte RandByte => SampleFactory.CreateBytes().First();
     }
 }

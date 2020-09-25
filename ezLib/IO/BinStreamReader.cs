@@ -12,7 +12,7 @@ namespace easyLib.IO
     {
         int Read(byte[] buffer, int count, int offset = 0);
         byte ReadByte();
-        byte[] ReadBytes(int count);       
+        byte[] ReadBytes(int count);
         sbyte ReadSByte();
         bool ReadBool();
         char ReadChar();
@@ -48,7 +48,6 @@ namespace easyLib.IO
             ByteOrder = endianess;
         }
 
-
         public ByteOrder ByteOrder
         {
             get => m_endianess;
@@ -62,22 +61,44 @@ namespace easyLib.IO
             }
         }
 
-        public DateTime ReadTime() => new DateTime(ReadLong());
-        public uint ReadUInt() => (uint)ReadInt();
-        public ulong ReadULong() => (ulong)ReadLong();
-        public ushort ReadUShort() => (ushort)ReadShort();
-        public sbyte ReadSByte() => (sbyte)ReadByte();
-        public IEnumerator<byte> GetEnumerator() => new ByteEnumerator(this);
-
-        public bool ReadBool()
+        public uint ReadUInt()
         {
-            byte b = ReadByte();
+            if (LoadBytes(sizeof(uint)) != sizeof(uint))
+                throw new EndOfStreamException();
 
-            if (b > 1)
-                throw new CorruptedStreamException();
+            if (m_needReorder)
+                m_buffer.ReverseBytes(sizeof(uint), 1);
 
-            return b == 0 ? false : true;            
+            return BitConverter.ToUInt32(m_buffer, 0);
         }
+
+        public int ReadInt() => (int)ReadUInt();
+
+        public ulong ReadULong()
+        {
+            if (LoadBytes(sizeof(ulong)) != sizeof(ulong))
+                throw new EndOfStreamException();
+
+            if (m_needReorder)
+                m_buffer.ReverseBytes(sizeof(ulong), 1);
+
+            return BitConverter.ToUInt64(m_buffer, 0);
+        }
+
+        public long ReadLong() => (long)ReadULong();
+
+        public ushort ReadUShort()
+        {
+            if (LoadBytes(sizeof(ushort)) != sizeof(ushort))
+                throw new EndOfStreamException();
+
+            if (m_needReorder)
+                m_buffer.ReverseBytes(sizeof(ushort), 1);
+
+            return BitConverter.ToUInt16(m_buffer, 0);
+        }
+
+        public short ReadShort() => (short)ReadUShort();
 
         public byte ReadByte()
         {
@@ -87,6 +108,20 @@ namespace easyLib.IO
                 throw new EndOfStreamException();
 
             return (byte)n;
+        }
+
+        public sbyte ReadSByte() => (sbyte)ReadByte();
+
+        public IEnumerator<byte> GetEnumerator() => new ByteEnumerator(this);
+
+        public bool ReadBool()
+        {
+            byte b = ReadByte();
+
+            if (b > 1)
+                throw new CorruptedStreamException();
+
+            return b == 1;
         }
 
         public byte[] ReadBytes(int count)
@@ -143,7 +178,6 @@ namespace easyLib.IO
             for (int i = 0; i < data.Length; ++i)
                 data[i] = ReadInt();
 
-
             try
             {
                 return new decimal(data);
@@ -176,38 +210,7 @@ namespace easyLib.IO
             return BitConverter.ToSingle(m_buffer, 0);
         }
 
-        public int ReadInt()
-        {
-            if (LoadBytes(sizeof(int)) != sizeof(int))
-                throw new EndOfStreamException();
-
-            if (m_needReorder)
-                m_buffer.ReverseBytes(sizeof(int), 1);
-
-            return BitConverter.ToInt32(m_buffer, 0);
-        }
-
-        public long ReadLong()
-        {
-            if (LoadBytes(sizeof(long)) != sizeof(long))
-                throw new EndOfStreamException();
-
-            if (m_needReorder)
-                m_buffer.ReverseBytes(sizeof(long), 1);
-
-            return BitConverter.ToInt64(m_buffer, 0);
-        }
-
-        public short ReadShort()
-        {
-            if (LoadBytes(sizeof(short)) != sizeof(short))
-                throw new EndOfStreamException();
-
-            if (m_needReorder)
-                m_buffer.ReverseBytes(sizeof(short), 1);
-
-            return BitConverter.ToInt16(m_buffer, 0);
-        }
+        public DateTime ReadTime() => new DateTime(ReadLong());
 
         public string ReadString()
         {
@@ -222,8 +225,7 @@ namespace easyLib.IO
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-
-        //protected:
+        //protected 
         protected Stream InputStream => m_inStream;
 
 

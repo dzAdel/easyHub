@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 using static easyLib.DebugHelper;
 
 
@@ -9,7 +10,7 @@ namespace easyLib.Test
     public abstract partial class UnitTest : ITest
     {
 
-        List<FailureInfo> m_results = new List<FailureInfo>();
+        List<ITestResult> m_results = new List<ITestResult>();
 
 
         public string Name { get; }
@@ -26,7 +27,7 @@ namespace easyLib.Test
                 m_results.Add(new RTExceptionInfo(ex));
             }
 
-            return m_results;
+            return m_results.ToArray();
         }
 
 
@@ -41,7 +42,7 @@ namespace easyLib.Test
         protected abstract void Start();
 
 
-        protected void Ensure(bool exp,
+        protected bool Ensure(bool exp,
             [CallerMemberName] string caller = null,
             [CallerFilePath] string file = null,
             [CallerLineNumber] int line = 0,
@@ -59,14 +60,18 @@ namespace easyLib.Test
 
                 m_results.Add(res);
             }
+
+            return exp;
         }
 
-        protected void EnsureThrow<T>(Action act,
+        protected bool EnsureThrow<T>(Action act,
                 [CallerMemberName] string caller = null,
                 [CallerFilePath] string file = null,
                 [CallerLineNumber] int line = 0)
             where T : Exception
         {
+            bool ok = false;
+
             try
             {
                 act();
@@ -93,8 +98,30 @@ namespace easyLib.Test
 
                     m_results.Add(res);
                 }
+                else
+                    ok = true;
             }
 
+            return ok;
+        }
+
+        protected void Trace(string msg, params string[] lines)
+        {
+            var ti = new TraceInfo(msg);
+
+
+            foreach (string s in lines)
+                ti.AddLine(s);
+
+            m_results.Add(ti);
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine(ti.Caption);
+            foreach (string s in ti.Report)
+                sb.AppendLine(s);
+
+            System.Diagnostics.Debug.WriteLine(sb.ToString());
         }
     }
 }

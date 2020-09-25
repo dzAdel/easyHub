@@ -10,18 +10,26 @@ namespace easyLib
         public static void Assert(bool exp, string msg = null,
             [CallerMemberName] string callerName = null,
             [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int lnNber = 0)
+            [CallerLineNumber] int lnNber = 0,
+            [CallerArgumentExpression("exp")] string expStr = null)
         {
             if (!exp)
             {
                 if (msg == null)
                     msg = "Assertion failure.";
 
-                string txt = $"{msg}\nMethod: {callerName}\nFile: {filePath}\nLine: {lnNber}";
-                Debug.Fail(txt);
+                string txt = $"{msg}\nMethod: {callerName}\nFile: {filePath}\nLine: {lnNber}" +
+                    (string.IsNullOrWhiteSpace(expStr) ? "" : expStr);
+
 
                 if (Debugger.IsAttached)
+                {
+                    Debug.WriteLine(txt);
                     Debugger.Break();
+                }
+                else
+                    Debug.Fail(txt);
+
             }
         }
 

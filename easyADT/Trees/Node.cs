@@ -13,10 +13,10 @@ namespace easyLib.ADT.Trees
         INode<T> Parent { get; }
         IEnumerable<INode<T>> Children { get; }
         bool IsDescendant(INode<T> node);
-        uint Degree { get; }
+        int Degree { get; }
         public IEnumerable<INode<T>> GetPath();
-        uint GetDepth();
-        uint GetDescendantCount();
+        int GetDepth();
+        int GetDescendantCount();
         T Item { get; }
     }
     //------------------------------------------------
@@ -26,8 +26,8 @@ namespace easyLib.ADT.Trees
         public T Item { get; set; }
         public bool IsRoot => GetParent() == null;
         public bool IsLeaf => Degree == 0;
-        public uint Degree => GetChildCount();
-        public uint GetDepth() => (uint)GetNodePath().Count() - 1;
+        public int Degree => GetChildCount();
+        public int GetDepth() => GetNodePath().Count() - 1;
         public bool IsAncestor(Node<T> node)
         {
             Assert(node != null);
@@ -44,14 +44,14 @@ namespace easyLib.ADT.Trees
 
             return false;
         }
-        public uint GetDescendantCount()
+        public int GetDescendantCount()
         {
-            uint childCount = GetChildCount();
+            int childCount = GetChildCount();
 
             if (childCount == 0)
                 return 1;
 
-            var nbers = new uint[childCount];
+            var nbers = new int[childCount];
 
             Parallel.ForEach(GetChildren(), (node, _, ndx)
                 => nbers[ndx] = CountDescendants(node));
@@ -59,9 +59,9 @@ namespace easyLib.ADT.Trees
             return nbers.Aggregate((total, sz) => total += sz) + 1;
 
 
-            uint CountDescendants(Node<T> node)
+            int CountDescendants(Node<T> node)
             {
-                uint n = 1;
+                int n = 1;
                 foreach (Node<T> child in node.GetChildren())
                     n += CountDescendants(child);
 
@@ -71,6 +71,11 @@ namespace easyLib.ADT.Trees
 
 
         //protected:
+        protected Node(T item)
+        {
+            Item = item;
+        }
+
         protected IEnumerable<Node<T>> GetNodePath()
         {
             var stack = new Stack<Node<T>>();
@@ -87,14 +92,12 @@ namespace easyLib.ADT.Trees
         }
         protected abstract Node<T> GetParent();
         protected abstract IEnumerable<Node<T>> GetChildren();
-        protected abstract uint GetChildCount();
+        protected abstract int GetChildCount();
 
         protected virtual bool ClassInvariant =>
                 (IsLeaf == (Degree == 0)) &&
                 (IsRoot || GetParent().GetChildren().Contains(this)) &&
                 (GetNodePath().Last() == this);
-
-
     }
 
 }

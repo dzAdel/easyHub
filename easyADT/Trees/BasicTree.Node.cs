@@ -12,21 +12,21 @@ namespace easyLib.ADT.Trees
         {
             readonly List<Node> m_children = new List<Node>();
 
-            public Node(T item)
+            public Node(T item) :
+                base(item)
             {
-                Item = item;
-
                 Assert(ClassInvariant);
             }
 
-            public Node(T item, IEnumerable<T> children)
+            public Node(T item, IEnumerable<T> children) :
+                base(item)
             {
                 Assert(children != null);
 
-                Item = item;
-
                 foreach (T child in children)
                     m_children.Add(new Node(child) { Parent = this });
+
+                Assert(ClassInvariant);
             }
 
 
@@ -137,6 +137,8 @@ namespace easyLib.ADT.Trees
 
             bool INode<T>.IsDescendant(INode<T> node)
             {
+                Assert(node != null);
+
                 if (node is Node nd)
                     return IsDescendant(nd);
 
@@ -144,13 +146,12 @@ namespace easyLib.ADT.Trees
             }
 
 
-
             //protected:
             protected override Node<T> GetParent() => Parent;
 
             protected override IEnumerable<Node<T>> GetChildren() => Children;
 
-            protected override uint GetChildCount() => (uint)m_children.Count;
+            protected override int GetChildCount() => m_children.Count;
         }
     }
 }
