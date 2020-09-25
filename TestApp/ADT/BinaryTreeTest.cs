@@ -22,9 +22,26 @@ namespace TestApp.ADT
             ImproperBTTest();
             BTMathPropertiesTest();
             ProperBTMathPropertiesTest();
+            BuildTreeTest();
         }
 
         //private:
+        void BuildTreeTest()
+        {
+            var srcTree = TreeFactory.CreateBinaryTree<int>();
+            var inOrderSeq = srcTree.Enumerate(TraversalOrder.InOrder).Select(node => node.Item);
+            var postOrderSeq = srcTree.Enumerate(TraversalOrder.PostOrder).Select(node => node.Item);
+            var preOrderSeq = srcTree.Enumerate(TraversalOrder.PreOrder).Select(node => node.Item);
+            var tree = BinaryTree<NodeInfo<int>>.BuildTree(inOrderSeq.ToList(), postOrderSeq.ToList(), TraversalOrder.PostOrder);
+
+            var seq = tree.Items.Select((item, ndx) => new { Item0 = item, Item1 = srcTree.Items.ElementAt(ndx) });
+            Ensure(seq.All(pair => pair.Item0.Equals(pair.Item1)));
+
+            tree = BinaryTree<NodeInfo<int>>.BuildTree(inOrderSeq.ToList(), preOrderSeq.ToList(), TraversalOrder.PreOrder);
+            seq = tree.Items.Select((item, ndx) => new { Item0 = item, Item1 = srcTree.Items.ElementAt(ndx) });
+            Ensure(seq.All(pair => pair.Item0.Equals(pair.Item1)));
+        }
+
         void ProperBTMathPropertiesTest()
         {
             var bt = TreeFactory.CreateProperBinaryTree<int>();
