@@ -1,6 +1,5 @@
 ﻿using easyLib.Test;
 using System;
-using System.Linq;
 using TestApp.ADT;
 using TestApp.Extensions;
 
@@ -15,7 +14,7 @@ namespace TestApp
             var app = new Program();
 
             //app.EasyLibTest();
-            app.EasyLibADTTreesTest();            
+            app.EasyLibADTTreesTest();
 
             app.m_mgr.Execute(new Random().Next(1, byte.MaxValue));
         }
@@ -28,13 +27,13 @@ namespace TestApp
         }
 
         void EasyLibIOTest()
-        {            
+        {
             m_mgr.AddTest(new MultiByteCodecTest());
             m_mgr.AddTest(new BinStreamTest());
         }
 
         void EasyLibADTTreesTest()
-        {            
+        {
             m_mgr.AddTest(new ADT.BasicTreeNodeTest());
             m_mgr.AddTest(new ADT.BasicTreeTest());
             m_mgr.AddTest(new ADT.BinaryTreeNodeTest());

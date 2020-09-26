@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using easyLib.Extensions;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static easyLib.DebugHelper;
-using easyLib.Extensions;
-using System;
 
 namespace easyLib.ADT.Trees
 {
@@ -67,27 +67,28 @@ namespace easyLib.ADT.Trees
         }
 
         public static BinaryTree<T> BuildTree(IList<T> inOrderTraversal,
-            IList<T> otherTraversal,            
+            IList<T> otherTraversal,
             TraversalOrder otherTraversalOrder)
         {
             Assert(inOrderTraversal != null);
             Assert(inOrderTraversal.Distinct().Count() == inOrderTraversal.Count);
             Assert(otherTraversal != null);
             Assert(inOrderTraversal.Count == otherTraversal.Count);
-            Assert(inOrderTraversal.All(node => otherTraversal.Contains(node)));            
+            Assert(inOrderTraversal.All(node => otherTraversal.Contains(node)));
             Assert(otherTraversalOrder == TraversalOrder.PostOrder || otherTraversalOrder == TraversalOrder.PreOrder);
 
             return BuildTree(inOrderTraversal, otherTraversal, x => x, otherTraversalOrder);
         }
 
-        public static BinaryTree<T> BuildTree<U>(IList<U> inOrderTraversal, 
-            IList<U> otherTraversal, 
+
+        public static BinaryTree<T> BuildTree<U>(IList<U> inOrderTraversal,
+            IList<U> otherTraversal,
             Func<U, T> selector,
             TraversalOrder otherTraversalOrder)
         {
             Assert(inOrderTraversal != null);
             Assert(inOrderTraversal.Distinct().Count() == inOrderTraversal.Count);
-            Assert(otherTraversal != null);            
+            Assert(otherTraversal != null);
             Assert(inOrderTraversal.Count == otherTraversal.Count);
             Assert(inOrderTraversal.All(node => otherTraversal.Contains(node)));
             Assert(selector != null);
@@ -98,8 +99,31 @@ namespace easyLib.ADT.Trees
             if (count == 0)
                 return new BinaryTree<T>();
 
-            Node root = otherTraversalOrder == TraversalOrder.PostOrder ? SubTreeFromPostOrder(0, 0, count) :
-                SubTreeFromPreOrder(0, 0, count);
+            if (count == 1)
+                return new BinaryTree<T>(new Node(selector(inOrderTraversal[0])));
+
+            U item = otherTraversalOrder == TraversalOrder.PostOrder ? otherTraversal[count - 1] :
+                otherTraversal[0];
+
+            var root = new Node(selector(item));
+            int rootIndex = inOrderTraversal.IndexOf(item);
+            Assert(rootIndex >= 0 && rootIndex < count);
+
+
+            if (otherTraversalOrder == TraversalOrder.PostOrder)
+            {
+                Action leftAction = () => root.LeftChild = SubTreeFromPostOrder(0, 0, rootIndex);
+                Action rightAction = () => root.RightChild = SubTreeFromPostOrder(rootIndex + 1, rootIndex, count - rootIndex - 1);
+
+                Parallel.Invoke(leftAction, rightAction);
+            }
+            else
+            {
+                Action leftAction = () => root.LeftChild = SubTreeFromPreOrder(0, 1, rootIndex);
+                Action rightAction = () => root.RightChild = SubTreeFromPreOrder(rootIndex + 1, 1 + rootIndex, count - rootIndex - 1);
+
+                Parallel.Invoke(leftAction, rightAction);
+            }
 
             return new BinaryTree<T>(root);
 
@@ -114,6 +138,7 @@ namespace easyLib.ADT.Trees
 
                 if (count > 1)
                 {
+
                     int ndxRoot = inOrderTraversal.IndexOf(rootData, ndxInOrder);
                     Assert(ndxRoot >= ndxInOrder && ndxRoot < ndxInOrder + count);
 
@@ -123,7 +148,7 @@ namespace easyLib.ADT.Trees
 
                     int inOrderStartRight = ndxRoot + 1;
                     int postOrderStartRight = postOrderStartLeft + countLeft;
-                    int countRight = ndxInOrder + count - ndxRoot - 1;                    
+                    int countRight = ndxInOrder + count - ndxRoot - 1;
 
                     rootNode.LeftChild = SubTreeFromPostOrder(inOrderStartLeft, postOrderStartLeft, countLeft);
                     rootNode.RightChild = SubTreeFromPostOrder(inOrderStartRight, postOrderStartRight, countRight);
@@ -154,7 +179,7 @@ namespace easyLib.ADT.Trees
                     int inOrderStartRight = ndxRoot + 1;
                     int preOrderStartRight = preOrderStartLeft + countLeft;
                     int countRight = ndxInOrder + count - ndxRoot - 1;
-                    
+
                     rootNode.LeftChild = SubTreeFromPreOrder(inOrderStartLeft, preOrderStartLeft, countLeft);
                     rootNode.RightChild = SubTreeFromPreOrder(inOrderStartRight, preOrderStartRight, countRight);
                 }

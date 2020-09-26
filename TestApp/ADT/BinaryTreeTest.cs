@@ -32,8 +32,8 @@ namespace TestApp.ADT
             var inOrderSeq = srcTree.Enumerate(TraversalOrder.InOrder).Select(node => node.Item);
             var postOrderSeq = srcTree.Enumerate(TraversalOrder.PostOrder).Select(node => node.Item);
             var preOrderSeq = srcTree.Enumerate(TraversalOrder.PreOrder).Select(node => node.Item);
-            var tree = BinaryTree<NodeInfo<int>>.BuildTree(inOrderSeq.ToList(), postOrderSeq.ToList(), TraversalOrder.PostOrder);
 
+            var tree = BinaryTree<NodeInfo<int>>.BuildTree(inOrderSeq.ToList(), postOrderSeq.ToList(), TraversalOrder.PostOrder);
             var seq = tree.Items.Select((item, ndx) => new { Item0 = item, Item1 = srcTree.Items.ElementAt(ndx) });
             Ensure(seq.All(pair => pair.Item0.Equals(pair.Item1)));
 
@@ -158,5 +158,7 @@ namespace TestApp.ADT
             return (intCount, extCount);
 
         }
+
+
     }
 }
