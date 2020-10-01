@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using static easyLib.DebugHelper;
@@ -18,7 +19,7 @@ namespace easyLib.ADT.Trees
     public static class Trees
     {
         public static int GetInternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree)
-            where TNode : INode<TItem>
+            where TNode : ITreeNode<TItem>
         {
             Assert(tree != null);
             Assert(!tree.IsEmpty);
@@ -45,7 +46,7 @@ namespace easyLib.ADT.Trees
         }
 
         public static int GetExternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree)
-            where TNode : INode<TItem>
+            where TNode : ITreeNode<TItem>
         {
             Assert(tree != null);
             Assert(!tree.IsEmpty);
@@ -73,7 +74,7 @@ namespace easyLib.ADT.Trees
         }
 
         public static int GetWeightedExternalPathLength<TItem, TNode>(this ITree<TItem, TNode> tree, Func<TNode, int> leafWeight)
-            where TNode : INode<TItem>
+            where TNode : ITreeNode<TItem>
         {
             Assert(tree != null);
             Assert(!tree.IsEmpty);
@@ -102,7 +103,7 @@ namespace easyLib.ADT.Trees
         }
 
         public static IEnumerable<TNode> Enumerate<TItem, TNode>(this ITree<TItem, TNode> tree, TraversalOrder order)
-            where TNode : INode<TItem>
+            where TNode : ITreeNode<TItem>
         {
             Assert(tree != null);
             Assert(Enum.IsDefined(typeof(TraversalOrder), order));
@@ -112,38 +113,39 @@ namespace easyLib.ADT.Trees
 
             TNode root = tree.Root;
 
-            if (root.IsLeaf)
-                return Enumerable.Repeat(root, 1);
+            if (!root.IsLeaf)
+                switch (order)
+                {
+                    case TraversalOrder.PreOrder:
+                        return PreOrderTraversal<TNode, TItem>(root);
 
+                    case TraversalOrder.PostOrder:
+                        return PostOrderTraversal<TNode, TItem>(root);
 
-            Func<TNode, IEnumerable<TNode>> iter = null;
+                    case TraversalOrder.InOrder:
+                        return InOrderTraversal<TNode, TItem>(root);
 
-            switch (order)
-            {
-                case TraversalOrder.PreOrder:
-                    iter = PreOrderTraversal<TNode, TItem>;
-                    break;
+                    case TraversalOrder.BreadthFirst:
+                        return LevelOrderTraversal<TNode, TItem>(root).Select(pair => pair.node);
+                }
 
-                case TraversalOrder.PostOrder:
-                    iter = PostOrderTraversal<TNode, TItem>;
-                    break;
-
-                case TraversalOrder.InOrder:
-                    iter = InOrderTraversal<TNode, TItem>;
-                    break;
-
-                case TraversalOrder.BreadthFirst:
-                    iter = LevelOrderTraversal<TNode, TItem>;
-                    break;
-            }
-
-            return iter(root);
+            return Enumerable.Repeat(root, 1);
         }
 
+        public static IEnumerable<(TNode node, int level)> LevelOrderTraversal<TItem, TNode>(this ITree<TItem, TNode> tree)
+            where TNode : ITreeNode<TItem>
+        {
+            Assert(tree != null);
+
+            if (tree.IsEmpty)
+                return Enumerable.Empty<(TNode, int)>();
+
+            return LevelOrderTraversal<TNode, TItem>(tree.Root);
+        }
 
         //private:
         static IEnumerable<TNode> PreOrderTraversal<TNode, TItem>(TNode root)
-            where TNode : INode<TItem>
+            where TNode : ITreeNode<TItem>
         {
             IEnumerable<TNode> res = Enumerable.Repeat(root, 1);
             int childCount = root.Degree;
@@ -183,7 +185,7 @@ namespace easyLib.ADT.Trees
         }
 
         static IEnumerable<TNode> PostOrderTraversal<TNode, TItem>(TNode root)
-            where TNode : INode<TItem>
+            where TNode : ITreeNode<TItem>
         {
             IEnumerable<TNode> res;
             int childCount = root.Degree;
@@ -224,7 +226,7 @@ namespace easyLib.ADT.Trees
         }
 
         static IEnumerable<TNode> InOrderTraversal<TNode, TItem>(TNode root)
-            where TNode : INode<TItem>
+            where TNode : ITreeNode<TItem>
         {
             IEnumerable<TNode> rootOnly = Enumerable.Repeat(root, 1);
             IEnumerable<TNode> res;
@@ -275,21 +277,20 @@ namespace easyLib.ADT.Trees
             }
         }
 
-        static IEnumerable<TNode> LevelOrderTraversal<TNode, TItem>(TNode root)
-            where TNode : INode<TItem>
+        static IEnumerable<(TNode node, int level)> LevelOrderTraversal<TNode, TItem>(TNode root)
+            where TNode : ITreeNode<TItem>
         {
-            var queue = new Queue<TNode>();
+            var queue = new Queue<(TNode, int)>();
 
-            queue.Enqueue(root);
+            queue.Enqueue((root, 0));
 
-            TNode node;
             while (queue.Count > 0)
             {
-                node = queue.Dequeue();
-                yield return node;
+                var (node, lvl) = queue.Dequeue();
+                yield return (node, lvl);
 
                 foreach (TNode child in node.Children)
-                    queue.Enqueue(child);
+                    queue.Enqueue((child, lvl + 1));
             }
         }
 

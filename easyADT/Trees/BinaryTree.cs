@@ -11,6 +11,7 @@ namespace easyLib.ADT.Trees
         where TNode : IBinaryTreeNode<TItem>
     {
         bool IsProper();
+        bool IsComplete();
     }
     //---------------------------------------------------------------------
 
@@ -66,6 +67,41 @@ namespace easyLib.ADT.Trees
             }
         }
 
+        public bool IsComplete()
+        {
+            Assert(!IsEmpty);
+
+            if (Root.IsLeaf)
+                return true;
+
+            int breakLevel = -1;
+
+            foreach (var (node, lvl) in this.LevelOrderTraversal())
+                switch (node.Degree)
+                {
+                    case 0:
+                        if (breakLevel == -1)
+                            breakLevel = lvl;
+
+                        break;
+
+                    case 1:
+                        if (node.LeftChild == null || breakLevel != -1)
+                            return false;
+
+                        breakLevel = lvl;
+                        break;
+
+                    case 2:
+                        if (breakLevel != -1)
+                            return false;
+                        
+                        break;
+                }
+
+            return true;
+        }
+
         public static BinaryTree<T> BuildTree(IList<T> inOrderTraversal,
             IList<T> otherTraversal,
             TraversalOrder otherTraversalOrder)
@@ -92,6 +128,7 @@ namespace easyLib.ADT.Trees
             Assert(inOrderTraversal.Count == otherTraversal.Count);
             Assert(inOrderTraversal.All(node => otherTraversal.Contains(node)));
             Assert(selector != null);
+            // assert selector thread safe
             Assert(otherTraversalOrder == TraversalOrder.PostOrder || otherTraversalOrder == TraversalOrder.PreOrder);
 
             int count = inOrderTraversal.Count;

@@ -30,11 +30,13 @@ namespace TestApp.ADT
             Ensure(tree.Items.All(item => item.Data == item.GetHashCode()));
             Ensure(tree.GetNodeCount() == (tree.IsEmpty ? 0 : tree.Root.Item.DescendantCount));
             Ensure(tree.Nodes.All(nd => tree.Contains(nd)));
+            Ensure(tree.Leaves.All(nd => nd.IsLeaf));
+            Ensure(tree.Nodes.Except(tree.Leaves).All(nd => !nd.IsLeaf));
 
             while (tree.IsEmpty)
                 tree = TreeFactory.CreateTree<int>();
 
-            var roots = new List<INode<INodeInfo<int>>>();
+            var roots = new List<ITreeNode<INodeInfo<int>>>();
 
             roots.Add(tree.Root);
             roots.AddRange(tree.Root.Children);
@@ -106,10 +108,9 @@ namespace TestApp.ADT
                 $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
 
 
+            Ensure(tree.Enumerate(TraversalOrder.PostOrder).Count() == tree.GetNodeCount());
 
             if (tree.IsEmpty)
-                Ensure(tree.Enumerate(TraversalOrder.PostOrder).Count() == 0);
-            else
             {
                 int ndx = 0;
                 Ensure(tree.Enumerate(TraversalOrder.PostOrder).All(node => node.Item.Data == ndx++));
@@ -124,9 +125,9 @@ namespace TestApp.ADT
                 $"IsEmpty: {tree.IsEmpty}",
                 $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
 
+            Ensure(tree.Enumerate(TraversalOrder.InOrder).Count() == tree.GetNodeCount());
+
             if (tree.IsEmpty)
-                Ensure(tree.Enumerate(TraversalOrder.InOrder).Count() == 0);
-            else
             {
                 int ndx = 0;
                 Ensure(tree.Enumerate(TraversalOrder.InOrder).All(node => node.Item.Data == ndx++));
@@ -141,9 +142,9 @@ namespace TestApp.ADT
                 $"IsEmpty: {tree.IsEmpty}",
                 $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
 
+            Ensure(tree.Enumerate(TraversalOrder.PreOrder).Count() == tree.GetNodeCount()); ;
+
             if (tree.IsEmpty)
-                Ensure(tree.Enumerate(TraversalOrder.PreOrder).Count() == 0);
-            else
             {
                 int ndx = 0;
                 Ensure(tree.Enumerate(TraversalOrder.PreOrder).All(node => node.Item.Data == ndx++));
@@ -159,13 +160,17 @@ namespace TestApp.ADT
                 $"IsEmpty: {tree.IsEmpty}",
                 $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
 
-            if (tree.IsEmpty)
-                Ensure(tree.Enumerate(TraversalOrder.BreadthFirst).Count() == 0);
-            else
+            Ensure(tree.Enumerate(TraversalOrder.BreadthFirst).Count() == tree.GetNodeCount());
+            Ensure(tree.LevelOrderTraversal().Count() == tree.GetNodeCount());
+
+            if (!tree.IsEmpty)
             {
                 int ndx = 0;
                 Ensure(tree.Enumerate(TraversalOrder.BreadthFirst).All(node => node.Item.Data == ndx++));
+                Ensure(tree.LevelOrderTraversal().All(pair => pair.level == pair.node.Item.Depth));
             }
+
+            
         }
 
         BasicTree<INodeInfo<int>> CreateLevelOrderTree()
@@ -208,7 +213,7 @@ namespace TestApp.ADT
         {
             int tag = 0;
 
-            Func<INode<INodeInfo<int>>, int> tagger = node => node.Item.Data = tag++;
+            Func<ITreeNode<INodeInfo<int>>, int> tagger = node => node.Item.Data = tag++;
 
             return TreeFactory.CreateTree<int>(tagger);
         }
@@ -223,7 +228,7 @@ namespace TestApp.ADT
             return tree;
 
             //---------
-            void TagNode(INode<INodeInfo<int>> node)
+            void TagNode(ITreeNode<INodeInfo<int>> node)
             {
                 if (node.IsRoot)
                     node.Item.Data = 0;
@@ -235,7 +240,7 @@ namespace TestApp.ADT
                     TagNode(child);
             }
 
-            INode<INodeInfo<int>> Pred(INode<INodeInfo<int>> node)
+            ITreeNode<INodeInfo<int>> Pred(ITreeNode<INodeInfo<int>> node)
             {
                 if (node.IsRoot)
                     return null;
@@ -255,7 +260,7 @@ namespace TestApp.ADT
         static BasicTree<INodeInfo<int>> CreateInOrderTree()
         {
             var tree = TreeFactory.CreateTree<int>(_ => -1);
-            INode<INodeInfo<int>> pred = null;
+            ITreeNode<INodeInfo<int>> pred = null;
 
             if (!tree.IsEmpty)
                 TagNode(tree.Root);
@@ -263,7 +268,7 @@ namespace TestApp.ADT
             return tree;
 
             //---------
-            void TagNode(INode<INodeInfo<int>> node)
+            void TagNode(ITreeNode<INodeInfo<int>> node)
             {
                 if (node.IsLeaf)
                 {
@@ -282,9 +287,9 @@ namespace TestApp.ADT
             }
         }
 
-        static INode<INodeInfo<int>> PrevSibling(INode<INodeInfo<int>> node)
+        static ITreeNode<INodeInfo<int>> PrevSibling(ITreeNode<INodeInfo<int>> node)
         {
-            INode<INodeInfo<int>> prevSibling = null;
+            ITreeNode<INodeInfo<int>> prevSibling = null;
 
             foreach (var child in node.Parent.Children)
                 if (child != node)
@@ -295,7 +300,7 @@ namespace TestApp.ADT
             return prevSibling;
         }
 
-        int TagLevelNode(INode<INodeInfo<int>> node, int lvl)
+        int TagLevelNode(ITreeNode<INodeInfo<int>> node, int lvl)
         {
             int lvlMax = lvl;
             node.Item.Data = lvl;
@@ -305,17 +310,5 @@ namespace TestApp.ADT
 
             return lvlMax;
         }
-
-        static void DisplayTree(INode<INodeInfo<int>> node, int ind)
-        {
-            string indent = new string(' ', ind);
-
-            System.Diagnostics.Debug.WriteLine($"{indent} {node.Item.Data}");
-            foreach (var child in node.Children)
-                DisplayTree(child, ind + 2);
-        }
-
-
-
     }
 }

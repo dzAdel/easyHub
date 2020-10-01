@@ -6,32 +6,32 @@ using static easyLib.DebugHelper;
 
 namespace easyLib.ADT.Trees
 {
-    public interface INode<T>
+    public interface ITreeNode<T>
     {
         bool IsRoot { get; }
         bool IsLeaf { get; }
-        INode<T> Parent { get; }
-        IEnumerable<INode<T>> Children { get; }
-        bool IsDescendant(INode<T> node);
+        ITreeNode<T> Parent { get; }
+        IEnumerable<ITreeNode<T>> Children { get; }
+        bool IsDescendant(ITreeNode<T> node);
         int Degree { get; }
-        public IEnumerable<INode<T>> GetPath();
+        public IEnumerable<ITreeNode<T>> GetPath();
         int GetDepth();
         int GetDescendantCount();
         T Item { get; }
     }
     //------------------------------------------------
 
-    public abstract class Node<T>
+    public abstract class TreeNode<T>
     {
         public T Item { get; set; }
         public bool IsRoot => GetParent() == null;
         public bool IsLeaf => Degree == 0;
         public int Degree => GetChildCount();
         public int GetDepth() => GetNodePath().Count() - 1;
-        public bool IsAncestor(Node<T> node)
+        public bool IsAncestor(TreeNode<T> node)
         {
             Assert(node != null);
-            Node<T> nd = this;
+            TreeNode<T> nd = this;
 
             do
             {
@@ -59,10 +59,10 @@ namespace easyLib.ADT.Trees
             return nbers.Aggregate((total, sz) => total += sz) + 1;
 
 
-            int CountDescendants(Node<T> node)
+            int CountDescendants(TreeNode<T> node)
             {
                 int n = 1;
-                foreach (Node<T> child in node.GetChildren())
+                foreach (TreeNode<T> child in node.GetChildren())
                     n += CountDescendants(child);
 
                 return n;
@@ -71,15 +71,15 @@ namespace easyLib.ADT.Trees
 
 
         //protected:
-        protected Node(T item)
+        protected TreeNode(T item)
         {
             Item = item;
         }
 
-        protected IEnumerable<Node<T>> GetNodePath()
+        protected IEnumerable<TreeNode<T>> GetNodePath()
         {
-            var stack = new Stack<Node<T>>();
-            Node<T> node = this;
+            var stack = new Stack<TreeNode<T>>();
+            TreeNode<T> node = this;
 
             do
             {
@@ -90,8 +90,8 @@ namespace easyLib.ADT.Trees
 
             return stack;
         }
-        protected abstract Node<T> GetParent();
-        protected abstract IEnumerable<Node<T>> GetChildren();
+        protected abstract TreeNode<T> GetParent();
+        protected abstract IEnumerable<TreeNode<T>> GetChildren();
         protected abstract int GetChildCount();
 
         protected virtual bool ClassInvariant =>

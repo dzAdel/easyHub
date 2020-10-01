@@ -25,5 +25,7 @@ namespace TestApp.ADT
         public T Data { get; set; }
         public int Depth { get; }
         public int DescendantCount { get; set; } = 1;
+
+        public override string ToString() => $"{Data}";
     }
 }

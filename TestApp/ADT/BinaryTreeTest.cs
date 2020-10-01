@@ -1,8 +1,10 @@
 ﻿using easyLib.ADT.Trees;
 using easyLib.Test;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static easyLib.DebugHelper;
+
 
 
 namespace TestApp.ADT
@@ -20,6 +22,8 @@ namespace TestApp.ADT
             BTTest();
             ProperBTTest();
             ImproperBTTest();
+            CompleteBTTest();
+            IncompleteBTTest();
             BTMathPropertiesTest();
             ProperBTMathPropertiesTest();
             BuildTreeTest();
@@ -91,7 +95,7 @@ namespace TestApp.ADT
                 $"Nber of nodes: {bt.GetNodeCount()}");
 
             Ensure(bt.GetNodeCount() == bt.Nodes.Count());
-            Ensure(bt.GetHeight() <= level);
+            Ensure(bt.GetHeight() <= level);            
 
             foreach (var node in bt.Nodes)
             {
@@ -104,7 +108,6 @@ namespace TestApp.ADT
             Ensure(bt.IsEmpty);
         }
 
-
         void ProperBTTest()
         {
             var bt = TreeFactory.CreateProperBinaryTree<int>();
@@ -115,6 +118,16 @@ namespace TestApp.ADT
 
 
             Ensure(bt.IsProper());
+        }
+
+        void CompleteBTTest()
+        {
+            var bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            Trace("CompleteBTTest()\nBinaryTree properties:",
+                $"Height: {bt.GetHeight()}",
+                $"Nber of nodes: {bt.GetNodeCount()}");
+
+            Ensure(bt.IsComplete());
         }
 
         void ImproperBTTest()
@@ -142,6 +155,57 @@ namespace TestApp.ADT
                 improperNode.RightChild = null;
 
             Ensure(!bt.IsProper());
+        }
+
+        void IncompleteBTTest()
+        {
+            BinaryTree<NodeInfo<int>> bt = TreeFactory.CreateCompleteBinaryTree<int>();
+
+            while (bt.IsEmpty || bt.GetHeight() < 4)
+                bt = TreeFactory.CreateCompleteBinaryTree<int>();            
+
+            var node = bt.Leaves.First();
+            node.Parent.RightChild = node;
+
+            Trace("IncompleteBTTest()\nBinaryTree properties:",
+                $"Nber of nodes: {bt.GetNodeCount()}");
+
+            Ensure(!bt.IsComplete());
+
+            bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            while (bt.IsEmpty || bt.GetHeight() < 4)
+                bt = TreeFactory.CreateCompleteBinaryTree<int>();
+
+            bt.Root.RightChild = null;
+
+
+            Trace("IncompleteBTTest()\nBinaryTree properties:",
+                $"Nber of nodes: {bt.GetNodeCount()}");
+
+            Ensure(!bt.IsComplete());
+
+            bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            while (bt.IsEmpty || bt.GetHeight() < 2)
+                bt = TreeFactory.CreateCompleteBinaryTree<int>();
+
+                       
+            var array = bt.Enumerate(TraversalOrder.BreadthFirst).Skip(1).ToArray();
+            var ndx = SampleFactory.CreateInts(0, array.Length - 1).First();
+
+            var p = array[ndx].Parent;
+
+            if (p.LeftChild == array[ndx])
+                p.LeftChild = null;
+            else
+                p.RightChild = null;
+
+            Assert(bt.GetNodeCount() > 1);
+
+            Trace("IncompleteBTTest()\nBinaryTree properties:",
+                $"Nber of nodes: {bt.GetNodeCount()}");
+
+
+            Ensure(!bt.IsComplete());
         }
 
         static (int interCount, int exterCount) CountNode<T>(BinaryTree<T> tree)

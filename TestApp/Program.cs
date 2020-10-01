@@ -13,7 +13,8 @@ namespace TestApp
         {
             var app = new Program();
 
-            //app.EasyLibTest();
+            app.EasyLibTest();
+            app.EasyLibIOTest();
             app.EasyLibADTTreesTest();
 
             app.m_mgr.Execute(new Random().Next(1, byte.MaxValue));
@@ -28,7 +29,6 @@ namespace TestApp
 
         void EasyLibIOTest()
         {
-            m_mgr.AddTest(new MultiByteCodecTest());
             m_mgr.AddTest(new BinStreamTest());
         }
 

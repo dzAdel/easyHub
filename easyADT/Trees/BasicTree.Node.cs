@@ -8,7 +8,7 @@ namespace easyLib.ADT.Trees
 {
     partial class BasicTree<T>
     {
-        public sealed class Node : Node<T>, INode<T>
+        public sealed class Node : TreeNode<T>, ITreeNode<T>
         {
             readonly List<Node> m_children = new List<Node>();
 
@@ -28,7 +28,6 @@ namespace easyLib.ADT.Trees
 
                 Assert(ClassInvariant);
             }
-
 
             public Node Parent { get; private set; }
 
@@ -129,13 +128,13 @@ namespace easyLib.ADT.Trees
             }
 
 
-            INode<T> INode<T>.Parent => Parent;
+            ITreeNode<T> ITreeNode<T>.Parent => Parent;
 
-            IEnumerable<INode<T>> INode<T>.Children => Children;
+            IEnumerable<ITreeNode<T>> ITreeNode<T>.Children => Children;
 
-            IEnumerable<INode<T>> INode<T>.GetPath() => GetPath();
+            IEnumerable<ITreeNode<T>> ITreeNode<T>.GetPath() => GetPath();
 
-            bool INode<T>.IsDescendant(INode<T> node)
+            bool ITreeNode<T>.IsDescendant(ITreeNode<T> node)
             {
                 Assert(node != null);
 
@@ -147,9 +146,9 @@ namespace easyLib.ADT.Trees
 
 
             //protected:
-            protected override Node<T> GetParent() => Parent;
+            protected override TreeNode<T> GetParent() => Parent;
 
-            protected override IEnumerable<Node<T>> GetChildren() => Children;
+            protected override IEnumerable<TreeNode<T>> GetChildren() => Children;
 
             protected override int GetChildCount() => m_children.Count;
         }

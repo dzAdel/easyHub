@@ -9,10 +9,11 @@ namespace easyLib.ADT.Trees
 {
 
     public interface ITree<out TItem, TNode>
-        where TNode : INode<TItem>
+        where TNode : ITreeNode<TItem>
     {
         TNode Root { get; }
         IEnumerable<TNode> Nodes { get; }
+        IEnumerable<TNode> Leaves { get; }
         IEnumerable<TItem> Items { get; }
         bool IsEmpty { get; }
         bool Contains(TNode node);
@@ -22,12 +23,13 @@ namespace easyLib.ADT.Trees
     //-------------------------------------------------
 
     public abstract class Tree<TItem, TNode> : ITree<TItem, TNode>
-        where TNode : class, INode<TItem>
+        where TNode : class, ITreeNode<TItem>
     {
         TNode m_root;
 
         public TNode Root => m_root;
         public IEnumerable<TNode> Nodes => this.Enumerate(TraversalOrder.PreOrder);
+        public IEnumerable<TNode> Leaves => this.Enumerate(TraversalOrder.PreOrder).Where(nd => nd.IsLeaf);
         public IEnumerable<TItem> Items => Nodes.Select(node => node.Item);
         public bool IsEmpty => m_root == null;
 
@@ -35,7 +37,7 @@ namespace easyLib.ADT.Trees
         {
             Assert(node != null);
 
-            INode<TItem> nd = node;
+            ITreeNode<TItem> nd = node;
 
             do
             {
@@ -64,7 +66,7 @@ namespace easyLib.ADT.Trees
             return heights.Max() + 1;
 
             //---
-            int GetHeight(INode<TItem> node)
+            int GetHeight(ITreeNode<TItem> node)
             {
                 int h = 0;
                 foreach (TNode nd in node.Children)
@@ -74,7 +76,7 @@ namespace easyLib.ADT.Trees
             }
         }
 
-        public int GetNodeCount() => m_root?.GetDescendantCount() ?? 0;
+        public int GetNodeCount() => NodeCount();
 
         public void Clear()
         {
@@ -93,6 +95,8 @@ namespace easyLib.ADT.Trees
 
             Assert(ClassInvariant);
         }
+
+        protected virtual int NodeCount() => m_root?.GetDescendantCount() ?? 0;
 
         protected virtual bool ClassInvariant => (IsEmpty || Root.Parent == null);
     }
