@@ -1,7 +1,6 @@
 ﻿using easyLib.ADT.Trees;
 using easyLib.Test;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using static easyLib.DebugHelper;
 
@@ -19,61 +18,138 @@ namespace TestApp.ADT
         //protected:
         protected override void Start()
         {
-            BTTest();
+            ConstructionTest();
+            PreOrderTest();
+            PostOrderTest();
+            BreadthFirstTest();
+            MathPropertiesTest();
             ProperBTTest();
             ImproperBTTest();
+            ProperBTMathPropertiesTest();
             CompleteBTTest();
             IncompleteBTTest();
-            BTMathPropertiesTest();
-            ProperBTMathPropertiesTest();
+            SubTreesMergeBTTest();
             BuildTreeTest();
         }
 
+
         //private:
-        void BuildTreeTest()
+        void ConstructionTest()
         {
-            var srcTree = TreeFactory.CreateBinaryTree<int>();
-            var inOrderSeq = srcTree.Enumerate(TraversalOrder.InOrder).Select(node => node.Item);
-            var postOrderSeq = srcTree.Enumerate(TraversalOrder.PostOrder).Select(node => node.Item);
-            var preOrderSeq = srcTree.Enumerate(TraversalOrder.PreOrder).Select(node => node.Item);
+            var bt = new BinaryTree<int>();
+            Ensure(bt.IsEmpty);
+            Ensure(bt.Root == null);
+            Ensure(!bt.Nodes.Any());
+            Ensure(bt.GetCount() == 0);
 
-            var tree = BinaryTree<NodeInfo<int>>.BuildTree(inOrderSeq.ToList(), postOrderSeq.ToList(), TraversalOrder.PostOrder);
-            var seq = tree.Items.Select((item, ndx) => new { Item0 = item, Item1 = srcTree.Items.ElementAt(ndx) });
-            Ensure(seq.All(pair => pair.Item0.Equals(pair.Item1)));
+            bt = new BinaryTree<int>(default(int));
+            Ensure(!bt.IsEmpty);
+            Ensure(bt.Root.Item == default);
+            Ensure(bt.Nodes.Single() == bt.Root);
+            Ensure(bt.GetCount() == 1);
 
-            tree = BinaryTree<NodeInfo<int>>.BuildTree(inOrderSeq.ToList(), preOrderSeq.ToList(), TraversalOrder.PreOrder);
-            seq = tree.Items.Select((item, ndx) => new { Item0 = item, Item1 = srcTree.Items.ElementAt(ndx) });
-            Ensure(seq.All(pair => pair.Item0.Equals(pair.Item1)));
+            bt.Root = null;
+            Ensure(bt.IsEmpty);
+            Ensure(bt.Root == null);
+            Ensure(!bt.Nodes.Any());
+            Ensure(bt.GetCount() == 0);
+
+            bt.Root = new BinaryTree<int>.Node(default);
+            Ensure(!bt.IsEmpty);
+            Ensure(bt.Root.Item == default);
+            Ensure(bt.Nodes.Single() == bt.Root);
+            Ensure(bt.GetCount() == 1);
+
+            bt.Clear();
+            Ensure(bt.IsEmpty);
         }
 
-        void ProperBTMathPropertiesTest()
+        void PreOrderTest()
         {
-            var bt = TreeFactory.CreateProperBinaryTree<int>();
+            int ndx = 0;
+            Func<BinaryTree<int>.Node, int> itemProvider = _ => ndx++;
 
-            while (bt.IsEmpty)
-                bt = TreeFactory.CreateProperBinaryTree<int>();
+            BinaryTree<int> bt;
 
-            int h = bt.GetHeight();
-            int n = bt.GetNodeCount();
-
-            Ensure(2 * h + 1 <= n && n <= Math.Pow(2, h + 1) - 1);
-
-            var (ni, ne) = CountNode(bt);
-            Ensure(h + 1 <= ne && ne <= Math.Pow(2, h));
-            Ensure(h <= ni && ni <= Math.Pow(2, h) - 1);
-            Ensure(Math.Log2(n + 1) - 1 <= h && h <= (n - 1) / 2);
-            Ensure(ne == ni + 1);
-        }
-
-        void BTMathPropertiesTest()
-        {
-            var bt = TreeFactory.CreateBinaryTree<int>();
-
-            while (bt.IsEmpty)
+            do
                 bt = TreeFactory.CreateBinaryTree<int>();
+            while (bt.IsEmpty);
+
+            foreach (var nd in bt.Enumerate(TraversalOrder.PreOrder))
+                nd.Item = itemProvider(nd);
+
+            Ensure(bt.Enumerate(TraversalOrder.PreOrder).First() == bt.Root);
+            Ensure(bt.Enumerate(TraversalOrder.PreOrder).Select(nd => nd.Item).Min() == bt.Root.Item);
+            Ensure(bt.Enumerate(TraversalOrder.PreOrder).
+                Skip(1).
+                All(nd => nd.Item < nd.Parent.Item));
+
+            Ensure(bt.Enumerate(TraversalOrder.PreOrder).
+                Where(nd => nd.Degree == 2).
+                All(nd => nd.LeftChild.Item < nd.RightChild.Item));
+        }
+
+        void PostOrderTest()
+        {
+            int ndx = 0;
+            Func<BinaryTree<int>.Node, int> itemProvider = _ => ndx++;
+            BinaryTree<int> bt;
+
+            do
+                bt = TreeFactory.CreateBinaryTree<int>();
+            while (bt.IsEmpty);
+
+            foreach (var nd in bt.Enumerate(TraversalOrder.PostOrder))
+                nd.Item = itemProvider(nd);
+
+            Ensure(bt.Enumerate(TraversalOrder.PostOrder).Last() == bt.Root);
+            Ensure(bt.Enumerate(TraversalOrder.PostOrder).Select(nd => nd.Item).Max() == bt.Root.Item);
+
+            Ensure(bt.Enumerate(TraversalOrder.PostOrder).
+                Where(nd => nd != bt.Root).
+                All(nd => nd.Item > nd.Parent.Item));
+
+            Ensure(bt.Enumerate(TraversalOrder.PreOrder).
+                Where(nd => nd.Degree == 2).
+                All(nd => nd.LeftChild.Item < nd.RightChild.Item));
+        }
+
+        void BreadthFirstTest()
+        {
+            int ndx = 0;
+            Func<BinaryTree<int>.Node, int> itemProvider = _ => ndx++;
+            BinaryTree<int> bt;
+
+            do
+                bt = TreeFactory.CreateBinaryTree<int>();
+            while (bt.IsEmpty);
+
+            foreach (var nd in bt.Enumerate(TraversalOrder.BreadthFirst))
+                nd.Item = itemProvider(nd);
+
+            Ensure(bt.Enumerate(TraversalOrder.BreadthFirst).First() == bt.Root);
+            Ensure(bt.Enumerate(TraversalOrder.BreadthFirst).Select(nd => nd.Item).Min() == bt.Root.Item);
+
+            Ensure(bt.Enumerate(TraversalOrder.BreadthFirst).
+                Where(nd => nd != bt.Root).
+                All(nd => nd.Item < nd.Parent.Item));
+
+            Ensure(bt.Enumerate(TraversalOrder.BreadthFirst).
+                Where(nd => nd.Degree == 2).
+                All(nd => nd.LeftChild.Item + 1 == nd.RightChild.Item));
+        }
+
+        void MathPropertiesTest()
+        {
+            BinaryTree<int> bt;
+
+            do
+                bt = TreeFactory.CreateBinaryTree<int>();
+            while (bt.IsEmpty);
+
 
             int h = bt.GetHeight();
-            int n = bt.GetNodeCount();
+            int n = bt.GetCount();
 
             Ensure(h + 1 <= n && n <= Math.Pow(2, h + 1) - 1);
 
@@ -84,69 +160,37 @@ namespace TestApp.ADT
             Ensure(Math.Log2(n + 1) - 1 <= h && h <= n - 1);
         }
 
-        void BTTest()
-        {
-            byte level = SampleFactory.CreateBytes(limit: 17).First();
-            var bt = TreeFactory.CreateBinaryTree<int>(level);
-
-
-            Trace("BTTest()\nBinaryTree properties:",
-                $"Max Level: {level}",
-                $"Nber of nodes: {bt.GetNodeCount()}");
-
-            Ensure(bt.GetNodeCount() == bt.Nodes.Count());
-            Ensure(bt.GetHeight() <= level);            
-
-            foreach (var node in bt.Nodes)
-            {
-                Ensure(bt.Contains(node));
-                Ensure(node.Item.Depth == node.GetDepth());
-                Ensure(node.Item.DescendantCount == node.GetDescendantCount());
-            }
-
-            bt.Clear();
-            Ensure(bt.IsEmpty);
-        }
-
         void ProperBTTest()
         {
-            var bt = TreeFactory.CreateProperBinaryTree<int>();
-
-            Trace("ProperBTTest()\nBinaryTree properties:",
-                $"Height: {bt.GetHeight()}",
-                $"Nber of nodes: {bt.GetNodeCount()}");
-
+            BinaryTree<int> bt = TreeFactory.CreateProperBinaryTree<int>();
 
             Ensure(bt.IsProper());
         }
 
-        void CompleteBTTest()
-        {
-            var bt = TreeFactory.CreateCompleteBinaryTree<int>();
-            Trace("CompleteBTTest()\nBinaryTree properties:",
-                $"Height: {bt.GetHeight()}",
-                $"Nber of nodes: {bt.GetNodeCount()}");
-
-            Ensure(bt.IsComplete());
-        }
-
         void ImproperBTTest()
         {
-            BinaryTree<NodeInfo<int>> bt = TreeFactory.CreateProperBinaryTree<int>();
+            BinaryTree<int> bt;
 
-            while (bt.IsEmpty || bt.GetHeight() < 4)
+            do
                 bt = TreeFactory.CreateProperBinaryTree<int>();
-
-            Trace("ImproperBTTest()\nBinaryTree properties:",
-                $"Nber of nodes: {bt.GetNodeCount()}");
+            while (bt.IsEmpty || bt.GetHeight() < 4);
 
             var deepestNode = bt.Root;
+            var dp = 0;
 
             foreach (var node in bt.Nodes)
-                if (node.Item.Depth >= deepestNode.Item.Depth)
-                    deepestNode = node;
+            {
+                var d = bt.GetDepth(node);
 
-            var improperNode = deepestNode.GetPath().Skip(deepestNode.Item.Depth / 2).First();
+                if (d >= dp)
+                {
+                    deepestNode = node;
+                    dp = d;
+                }
+            }
+
+
+            var improperNode = bt.GetPath(deepestNode).Skip(dp / 2).First();
             Assert(improperNode.Degree == 2);
 
             if (SampleFactory.CreateBools().First())
@@ -157,41 +201,60 @@ namespace TestApp.ADT
             Ensure(!bt.IsProper());
         }
 
+        void ProperBTMathPropertiesTest()
+        {
+            BinaryTree<int> bt;
+
+            do
+                bt = TreeFactory.CreateProperBinaryTree<int>();
+            while (bt.IsEmpty);
+
+
+            int h = bt.GetHeight();
+            int n = bt.GetCount();
+
+            Ensure(2 * h + 1 <= n && n <= Math.Pow(2, h + 1) - 1);
+
+            var (ni, ne) = CountNode(bt);
+            Ensure(h + 1 <= ne && ne <= Math.Pow(2, h));
+            Ensure(h <= ni && ni <= Math.Pow(2, h) - 1);
+            Ensure(Math.Log2(n + 1) - 1 <= h && h <= (n - 1) / 2);
+            Ensure(ne == ni + 1);
+        }
+
+        void CompleteBTTest()
+        {
+            var bt = TreeFactory.CreateCompleteBinaryTree<int>();
+
+            Ensure(bt.IsComplete());
+        }
+
         void IncompleteBTTest()
         {
-            BinaryTree<NodeInfo<int>> bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            BinaryTree<int> bt;
 
-            while (bt.IsEmpty || bt.GetHeight() < 4)
-                bt = TreeFactory.CreateCompleteBinaryTree<int>();            
+            do
+                bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            while (bt.IsEmpty || bt.GetHeight() < 4);
 
             var node = bt.Leaves.First();
             node.Parent.RightChild = node;
 
-            Trace("IncompleteBTTest()\nBinaryTree properties:",
-                $"Nber of nodes: {bt.GetNodeCount()}");
-
             Ensure(!bt.IsComplete());
 
-            bt = TreeFactory.CreateCompleteBinaryTree<int>();
-            while (bt.IsEmpty || bt.GetHeight() < 4)
+            do
                 bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            while (bt.IsEmpty || bt.GetHeight() < 4);
 
             bt.Root.RightChild = null;
-
-
-            Trace("IncompleteBTTest()\nBinaryTree properties:",
-                $"Nber of nodes: {bt.GetNodeCount()}");
-
             Ensure(!bt.IsComplete());
 
-            bt = TreeFactory.CreateCompleteBinaryTree<int>();
-            while (bt.IsEmpty || bt.GetHeight() < 2)
+            do
                 bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            while (bt.IsEmpty || bt.GetHeight() < 2);
 
-                       
             var array = bt.Enumerate(TraversalOrder.BreadthFirst).Skip(1).ToArray();
             var ndx = SampleFactory.CreateInts(0, array.Length - 1).First();
-
             var p = array[ndx].Parent;
 
             if (p.LeftChild == array[ndx])
@@ -199,13 +262,45 @@ namespace TestApp.ADT
             else
                 p.RightChild = null;
 
-            Assert(bt.GetNodeCount() > 1);
-
-            Trace("IncompleteBTTest()\nBinaryTree properties:",
-                $"Nber of nodes: {bt.GetNodeCount()}");
-
+            Assert(bt.GetCount() > 1);
 
             Ensure(!bt.IsComplete());
+        }
+
+        void SubTreesMergeBTTest()
+        {
+            byte level = SampleFactory.CreateBytes(limit: 32).First();
+            int ndx = 0;
+            Func<BinaryTree<int>.Node, int> itemProvider = _ => ndx++;
+            var bt = TreeFactory.CreateBinaryTree<int>(level, itemProvider);
+
+            var subTrees = bt.SubTrees().ToArray();
+            Ensure(subTrees.Length == 2);
+            Ensure(subTrees[0]?.Root == bt.Root.LeftChild);
+            Ensure(subTrees[1]?.Root == bt.Root.RightChild);
+            Ensure(subTrees[0].All(nd => bt.Contains(nd)));
+            Ensure(subTrees[1].All(nd => bt.Contains(nd)));
+            Ensure(!subTrees[0].Contains(bt.Root));
+            Ensure(!subTrees[1].Contains(bt.Root));
+
+            var bt1 = BinaryTree<int>.Merge(bt.Root.Item, subTrees[0], subTrees[0]);
+            Ensure(bt1.SequenceEqual(bt));
+        }
+
+        void BuildTreeTest()
+        {
+            int ndx = 0;
+            Func<BinaryTree<int>.Node, int> itemProvider = _ => ndx++;
+            var srcTree = TreeFactory.CreateBinaryTree<int>(itemProvider);
+            var inOrderSeq = srcTree.Enumerate(TraversalOrder.InOrder).Select(node => node.Item);
+            var postOrderSeq = srcTree.Enumerate(TraversalOrder.PostOrder).Select(node => node.Item);
+            var preOrderSeq = srcTree.Enumerate(TraversalOrder.PreOrder).Select(node => node.Item);
+
+            var tree = BinaryTree<int>.BuildTree(inOrderSeq.ToList(), postOrderSeq.ToList(), TraversalOrder.PostOrder);
+            Ensure(srcTree.SequenceEqual(tree));
+
+            tree = BinaryTree<int>.BuildTree(inOrderSeq.ToList(), preOrderSeq.ToList(), TraversalOrder.PreOrder);
+            Ensure(srcTree.SequenceEqual(tree));
         }
 
         static (int interCount, int exterCount) CountNode<T>(BinaryTree<T> tree)
@@ -220,9 +315,6 @@ namespace TestApp.ADT
                     ++intCount;
 
             return (intCount, extCount);
-
         }
-
-
     }
 }

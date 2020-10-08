@@ -1,5 +1,6 @@
 ﻿using easyLib.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using static easyLib.DebugHelper;
 
 namespace easyLib.ADT.Trees
 {
-    public interface IBinaryTree<TItem, TNode> : ITree<TItem, TNode>
+    public interface IBinaryTree<out TItem, out TNode> : ITree<TItem, TNode>
         where TNode : IBinaryTreeNode<TItem>
     {
         bool IsProper();
@@ -15,91 +16,78 @@ namespace easyLib.ADT.Trees
     }
     //---------------------------------------------------------------------
 
-    public sealed partial class BinaryTree<T> : Tree<T, BinaryTree<T>.Node>, IBinaryTree<T, BinaryTree<T>.Node>
+    public sealed partial class BinaryTree<T> : IBinaryTree<T, BinaryTree<T>.Node>
     {
-        public BinaryTree(T item) :
-            base(new Node(item))
+        public BinaryTree(T item)
         {
-            Assert(ClassInvariant);
+            Root = new Node(item);
         }
 
-        public BinaryTree(Node root = null) :
-            base(root)
+        public BinaryTree(Node root = null)
         {
-            Assert(root == null || root.IsRoot);
-
-            Assert(ClassInvariant);
+            Root = root;
         }
+
+        public Node Root { get; set; }
+
+        public bool IsEmpty => Root == null;
+
+        public IEnumerable<Node> Nodes => Enumerate(TraversalOrder.PostOrder);
+
+        public IEnumerable<Node> Leaves => Nodes.Where(node => node.IsLeaf);
+
+        public int GetCount() => Root?.GetDescendantCount() ?? 0;
 
         public bool IsProper()
         {
             Assert(!IsEmpty);
-
-            int childCouunt = Root.Degree;
-
-            if (childCouunt == 0)
-                return true;
-
-            bool improper = false;
-            Parallel.ForEach(Root.Children, LookupImproperNode);
-
-            return !improper;
-
-
-            //------------------
-            void LookupImproperNode(Node node, ParallelLoopState pls)
-            {
-                int degree = node.Degree;
-
-                if (pls.IsStopped || degree == 0)
-                    return;
-
-                if (degree == 1)
-                {
-                    improper = true;
-                    pls.Stop();
-                }
-                else
-                {
-                    LookupImproperNode(node.LeftChild, pls);
-                    LookupImproperNode(node.RightChild, pls);
-                }
-            }
+            return BinaryTrees.IsProper(this);
         }
 
         public bool IsComplete()
         {
             Assert(!IsEmpty);
+            return BinaryTrees.IsComplete(this);
+        }
 
-            if (Root.IsLeaf)
-                return true;
+        public IEnumerable<Node> GetPath(Node node)
+        {
+            Assert(node != null);
+            Assert(this.Contains(node));
 
-            int breakLevel = -1;
+            return node.GetPath(Root);
+        }
 
-            foreach (var (node, lvl) in this.LevelOrderTraversal())
-                switch (node.Degree)
-                {
-                    case 0:
-                        if (breakLevel == -1)
-                            breakLevel = lvl;
+        public IEnumerable<Node> Enumerate(TraversalOrder order) => Trees.Enumerate(this, order).Cast<Node>();
 
-                        break;
+        public IEnumerator<T> GetEnumerator() => Nodes.Select(nd => nd.Item).GetEnumerator();
 
-                    case 1:
-                        if (node.LeftChild == null || breakLevel != -1)
-                            return false;
+        public void Clear() => Root = null;
 
-                        breakLevel = lvl;
-                        break;
+        public IEnumerable<BinaryTree<T>> SubTrees()
+        {
+            Assert(!IsEmpty);
 
-                    case 2:
-                        if (breakLevel != -1)
-                            return false;
-                        
-                        break;
-                }
+            Node lChild = Root.LeftChild;
+            Node rChild = Root.RightChild;
 
-            return true;
+            yield return new BinaryTree<T>(lChild);
+            yield return new BinaryTree<T>(rChild);
+        }
+
+        public static BinaryTree<T> Merge(T item,
+            BinaryTree<T> lefSubTree = null,
+            BinaryTree<T> rigthSubTree = null)
+        {
+            var bt = new BinaryTree<T>(item);
+
+            if (lefSubTree != null && !lefSubTree.IsEmpty)
+                bt.Root.LeftChild = lefSubTree.Root;
+
+            if (rigthSubTree != null && !rigthSubTree.IsEmpty)
+                bt.Root.RightChild = rigthSubTree.Root;
+
+            return bt;
         }
 
         public static BinaryTree<T> BuildTree(IList<T> inOrderTraversal,
@@ -115,7 +103,6 @@ namespace easyLib.ADT.Trees
 
             return BuildTree(inOrderTraversal, otherTraversal, x => x, otherTraversalOrder);
         }
-
 
         public static BinaryTree<T> BuildTree<U>(IList<U> inOrderTraversal,
             IList<U> otherTraversal,
@@ -222,6 +209,95 @@ namespace easyLib.ADT.Trees
                 }
                 return rootNode;
             }
+        }
+
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    //--------------------------------------------------------------------------------------------------
+
+    public static class BinaryTrees
+    {
+        public static bool IsProper<T, N>(this IBinaryTree<T, N> tree)
+            where N : IBinaryTreeNode<T>
+        {
+            Assert(tree != null);
+            Assert(!tree.IsEmpty);
+
+            int childCouunt = tree.Root.Degree;
+
+            if (childCouunt == 0)
+                return true;
+
+            bool improper = false;
+
+            if (childCouunt == 1)
+                LookupImproperNode(tree.Root.LeftChild ?? tree.Root.RightChild, null);
+            else
+                Parallel.ForEach(new IBinaryTreeNode<T>[] { tree.Root.LeftChild, tree.Root.RightChild },
+                    LookupImproperNode);
+
+            return !improper;
+
+
+            //------------------
+            void LookupImproperNode(IBinaryTreeNode<T> node, ParallelLoopState pls)
+            {
+                int degree = node.Degree;
+
+                if ((pls != null && pls.IsStopped) || degree == 0)
+                    return;
+
+                if (degree == 1)
+                {
+                    improper = true;
+                    pls?.Stop();
+                }
+                else
+                {
+                    LookupImproperNode(node.LeftChild, pls);
+                    LookupImproperNode(node.RightChild, pls);
+                }
+            }
+
+        }
+
+        public static bool IsComplete<T, N>(this IBinaryTree<T, N> tree)
+            where N : IBinaryTreeNode<T>
+        {
+            Assert(tree != null);
+            Assert(!tree.IsEmpty);
+
+            if (tree.Root.IsLeaf)
+                return true;
+
+            int breakLevel = -1;
+
+            foreach (var (node, lvl) in tree.LevelOrderTraversal())
+                switch (node.Degree)
+                {
+                    case 0:
+                        if (breakLevel == -1)
+                            breakLevel = lvl;
+
+                        break;
+
+                    case 1:
+                        if (((IBinaryTreeNode<T>)node).LeftChild == null || breakLevel != -1)   // any descendant of an IBinaryTreeNode
+                            return false;                                                       // is an IBinaryTreeNode
+
+                        breakLevel = lvl;
+                        break;
+
+                    case 2:
+                        if (breakLevel != -1)
+                            return false;
+
+                        break;
+                }
+
+            return true;
+
         }
     }
 }

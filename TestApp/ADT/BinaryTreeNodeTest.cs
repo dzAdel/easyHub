@@ -1,16 +1,13 @@
 ﻿using easyLib.ADT.Trees;
 using easyLib.Test;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TestApp.ADT
 {
-    class BinaryTreeNodeTest: UnitTest
+    class BinaryTreeNodeTest : UnitTest
     {
-        public BinaryTreeNodeTest():
+        public BinaryTreeNodeTest() :
             base("BinaryTreeNode test")
         { }
 
@@ -18,42 +15,73 @@ namespace TestApp.ADT
         //protected:
         protected override void Start()
         {
-            byte rootData = SampleFactory.NextByte;
-            byte leftData = SampleFactory.NextByte;
-            byte rightData = SampleFactory.NextByte;
-
-            var leftChild = new BinaryTree<NodeInfo<int>>.Node(new NodeInfo<int>(1, leftData));
-            var rightChild = new BinaryTree<NodeInfo<int>>.Node(new NodeInfo<int>(1, rightData));
-            var root = new BinaryTree<NodeInfo<int>>.Node(new NodeInfo<int>(0, rootData), leftChild, rightChild);
-
-            Ensure(root.Item.Data == rootData);
-            Ensure(root.LeftChild.Item.Data == leftData);
-            Ensure(root.RightChild.Item.Data == rightData);
-            Ensure(root.LeftChild.Parent == root);
-            Ensure(root.RightChild.Parent == root);
-            Ensure(root.IsDescendant(leftChild));
-            Ensure(root.IsDescendant(rightChild));
-            Ensure(root.LeftChild.IsAncestor(root));
-            Ensure(root.RightChild.IsAncestor(root));
-            Ensure(root.Children.All(nd => nd == root.LeftChild || nd == root.RightChild));
-            Ensure(root.Children.Count() == root.Degree);
-
-            GetPathTest();
+            ConstructionTest();
+            PathTest();
+            InsertionRemovalTest();
         }
 
         //private:
-        void GetPathTest()
+        void InsertionRemovalTest()
         {
-            //assume SampleFactoryTest, BasicTreeTest ok
-            var binTree = TreeFactory.CreateBinaryTree<int>();
+            var node = TreeFactory.CreateBinaryNode<int>();
+            var left = TreeFactory.CreateBinaryNode<int>();
 
-            while(binTree.IsEmpty)
-                binTree = TreeFactory.CreateBinaryTree<int>();
+            node.LeftChild = left;
+            Ensure(node.LeftChild == left);
+            Ensure(left.Parent == node);
+            Ensure(node.Children.First() == left);
 
-            Tree<NodeInfo<int>, BinaryTree<NodeInfo<int>>.Node> tree = binTree;
-            
-            Ensure(tree.Nodes.
-                    All(node => node.GetPath().All(nd => node.IsAncestor(nd))));            
+            var right = TreeFactory.CreateBinaryNode<int>();
+            node.RightChild = right;
+            Ensure(node.LeftChild == left);
+            Ensure(node.RightChild == right);
+            Ensure(right.Parent == node);
+            Ensure(node.Children.Last() == right);
+            Ensure(node.GetDescendantCount() == left.GetDescendantCount() + right.GetDescendantCount() + 1);
+
+
+            node.LeftChild = null;
+            Ensure(node.LeftChild == null);
+            Ensure(left.Parent == null);
+
+            node.RightChild = null;
+            Ensure(node.RightChild == null);
+            Ensure(right.Parent == null);
+            Ensure(!node.Children.Any());
+        }
+
+        void ConstructionTest()
+        {
+            var node = new BinaryTree<int>.Node(default);
+            Ensure(node.Parent == null);
+            Ensure(node.Item == default);
+            Ensure(node.LeftChild == null);
+            Ensure(node.RightChild == null);
+            Ensure(node.IsLeaf);
+            Ensure(node.Degree == 0);
+            Ensure(!node.Children.Any());
+
+            do
+                node = TreeFactory.CreateBinaryNode<int>();
+            while (node.Degree != 2);
+
+            Ensure(node.LeftChild != null);
+            Ensure(node.RightChild != null);
+            Ensure(node.LeftChild.Parent == node);
+            Ensure(node.RightChild.Parent == node);
+            Ensure(node.RightChild != node.LeftChild);
+            Ensure(node.Children.Count() == node.Degree);
+        }
+
+        void PathTest()
+        {
+            var node = TreeFactory.CreateBinaryNode<int>();
+
+            Ensure(node.Children.All(nd => nd.GetPath().First() == node));
+            Ensure(node.Children.All(nd => nd.GetPath().Last() == nd));
+            Ensure(node.Children.All(nd => nd.GetPath().Reverse().ElementAt(1) == nd.Parent));
+            Ensure(node.Children.All(nd => nd.IsDescendantOf(node)));
+            Ensure(node.Children.All(nd => node.IsAncestorOf(nd)));
         }
     }
 }

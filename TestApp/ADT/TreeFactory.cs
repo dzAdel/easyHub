@@ -10,147 +10,169 @@ namespace TestApp.ADT
 {
     static class TreeFactory
     {
-        public static BasicTree<INodeInfo<T>> CreateTree<T>(byte maxLevel,
-            Func<ITreeNode<INodeInfo<T>>, T> dataProvider = null,
-            byte minChildCount = 0,
-            byte maxChildCount = 4)
+        public static BasicTree<T>.Node CreateBasicNode<T>(int maxChildCount, int maxLevel, Func<BasicTree<T>.Node, T> itemProvider = null)
         {
-            if (dataProvider == null)
-                dataProvider = _ => default(T);
+            var node = new BasicTree<T>.Node(default);
 
-            var ni = new NodeInfo<T>(0);
-            var root = new BasicTree<INodeInfo<T>>.Node(ni);
-
-
-
-            long nbNode = 1;
-
-            if (maxLevel > 0)
+            if (maxLevel == 0 || maxChildCount == 0)
             {
-                int nChild = SampleFactory.CreateInts(minChildCount, maxChildCount + 1).First();
-
-                for (int i = 0; i < nChild; ++i)
-                {
-                    var nd = CreateChild(root, maxLevel - 1);
-                    ni.DescendantCount += nd.Item.DescendantCount;
-                }
-            }
-
-
-            Assert(root.GetDescendantCount() == ni.DescendantCount);
-
-            var tree = new BasicTree<INodeInfo<T>>(root);
-
-            foreach (var node in PostOrderChildern(tree.Root))
-                node.Item.Data = dataProvider(node);
-
-            return tree;
-
-            //-------------
-            BasicTree<INodeInfo<T>>.Node CreateChild(BasicTree<INodeInfo<T>>.Node parent, int lvl)
-            {
-                var ni = new NodeInfo<T>(parent.Item.Depth + 1);
-                ++nbNode;
-                var node = new BasicTree<INodeInfo<T>>.Node(ni);
-                parent.AppendChild(node);
-
-
-                if (lvl > 0)
-                {
-                    int nChild = SampleFactory.CreateInts(minChildCount, maxChildCount + 1).First();
-                    for (int i = 0; i < nChild; ++i)
-                        ni.DescendantCount += CreateChild(node, lvl - 1).Item.DescendantCount;
-                }
-
-
+                if (itemProvider != null)
+                    node.Item = itemProvider(node);
 
                 return node;
             }
-        }
 
-        public static BasicTree<INodeInfo<T>> CreateTree<T>(Func<ITreeNode<INodeInfo<T>>, T> dataProvider = null)
-        {
-            const int maxLevel = 16;
-            int lvl = SampleFactory.CreateInts(-1, maxLevel + 1).First();
 
-            if (lvl < 0)
-                return new BasicTree<INodeInfo<T>>();
+            var childCountSeq = SampleFactory.CreateInts(0, maxChildCount + 1);
+            var maxLvl = SampleFactory.CreateInts(1, maxLevel + 1).First();
 
-            return CreateTree<T>(maxLevel: (byte)lvl, dataProvider);
-        }
+            CreateChild(node, 1);
 
-        public static BinaryTree<NodeInfo<T>> CreateBinaryTree<T>(Func<BinaryTree<NodeInfo<T>>.Node, T> dataProvider = null)
-        {
-            int lvl = SampleFactory.CreateInts(-1, 17).First();
-
-            if (lvl < 0)
-                return new BinaryTree<NodeInfo<T>>();
-
-            return CreateBinaryTree<T>((byte)lvl, dataProvider);
-        }
-
-        public static BinaryTree<NodeInfo<T>> CreateBinaryTree<T>(byte maxLevel,
-            Func<BinaryTree<NodeInfo<T>>.Node, T> dataProvider = null)
-        {
-            if (dataProvider == null)
-                dataProvider = _ => default(T);
-
-            var root = new BinaryTree<NodeInfo<T>>.Node(new NodeInfo<T>(0));
-
-            IEnumerable<byte> byteSeq = SampleFactory.CreateBytes(0, 3);
-
-            if (maxLevel > 0)
+            if (itemProvider != null)
             {
-                byte childCount = byteSeq.First();
+                node.Item = itemProvider(node);
 
-                for (byte i = 0; i < childCount; ++i)
-                    CreateChildren(root, 1);
-
-                foreach (var node in root.Children)
-                    root.Item.DescendantCount += node.Item.DescendantCount;
-
+                foreach (BasicTree<T>.Node child in EnumerateDescendant(node))
+                    child.Item = itemProvider(child);
             }
 
-            var tree = new BinaryTree<NodeInfo<T>>(root);
-            foreach (var node in Trees.Enumerate(tree, TraversalOrder.PostOrder))
-                node.Item.Data = dataProvider(root);
+            return node;
 
-            return tree;
-
-            //--------------
-
-            void CreateChildren(BinaryTree<NodeInfo<T>>.Node parent, int lvl)
+            //-----------
+            void CreateChild(BasicTree<T>.Node parent, int lvl)
             {
-                if (lvl == maxLevel)
-                    return;
+                var child = new BasicTree<T>.Node(default);
+                parent.AppendChild(child);
 
-                var nodeInfo = new NodeInfo<T>(parent.Item.Depth + 1);
-                var node = new BinaryTree<NodeInfo<T>>.Node(nodeInfo);
+                if (++lvl < maxLvl)
+                {
+                    var childCount = childCountSeq.First();
 
-                if (parent.IsLeaf)
-                    if (byteSeq.First() == 0)
-                        parent.RightChild = node;
-                    else
-                        parent.LeftChild = node;
-                else if (parent.LeftChild == null)
-                    parent.LeftChild = node;
-                else
-                    parent.RightChild = node;
-
-                byte nbChild = byteSeq.First();
-                for (int i = 0; i < nbChild; ++i)
-                    CreateChildren(node, lvl + 1);
-
-                foreach (var child in node.Children)
-                    nodeInfo.DescendantCount += child.Item.DescendantCount;
+                    for (int i = 0; i < childCount; ++i)
+                        CreateChild(child, lvl);
+                }
             }
         }
 
-        public static BinaryTree<NodeInfo<T>> CreateProperBinaryTree<T>(byte maxLevel = 16,
-            Func<BinaryTree<NodeInfo<T>>.Node, T> dataProvider = null)
+        public static BasicTree<T>.Node CreateBasicNode<T>(Func<BasicTree<T>.Node, T> itemProvider = null)
         {
-            var tree = CreateBinaryTree<T>(maxLevel, dataProvider);
-            var improperNodes = new Queue<BinaryTree<NodeInfo<T>>.Node>();
+            int maxChild = SampleFactory.CreateInts(0, 4).First();
+            int maxLevel = SampleFactory.CreateInts(0, 16).First();
+
+            return CreateBasicNode(maxChild, maxLevel, itemProvider);
+        }
+
+        public static BinaryTree<T>.Node CreateBinaryNode<T>(int maxLevel,
+            Func<BinaryTree<T>.Node, T> itemProvider = null)
+        {
+
+            var node = new BinaryTree<T>.Node(default);
+
+            if (maxLevel != 0)
+            {
+                Func<bool> hasLeft = () => SampleFactory.NextInt % 2 != 0;
+                Func<bool> hasRight = hasLeft;
+                var maxLvl = SampleFactory.CreateInts(1, maxLevel + 1).First();
+
+                CreateChild(node, 1);
+
+                //----
+                void CreateChild(BinaryTree<T>.Node parent, int lvl)
+                {
+                    if (hasLeft())
+                        parent.LeftChild = new BinaryTree<T>.Node(default);
+
+                    if (hasRight())
+                        parent.RightChild = new BinaryTree<T>.Node(default);
+
+                    if (++lvl < maxLvl)
+                    {
+                        if (parent.LeftChild != null)
+                            CreateChild(parent.LeftChild, lvl);
+
+                        if (parent.RightChild != null)
+                            CreateChild(parent.RightChild, lvl);
+                    }
+                }
+            }
+
+
+            if (itemProvider != null)
+                foreach (BinaryTree<T>.Node nd in EnumerateDescendant(node))
+                    nd.Item = itemProvider(nd);
+
+            return node;
+        }
+
+        public static BinaryTree<T>.Node CreateBinaryNode<T>(Func<BinaryTree<T>.Node, T> itemProvider = null)
+        {
+            int maxLevel = SampleFactory.CreateInts(0, 16).First();
+
+            return CreateBinaryNode<T>(maxLevel, itemProvider);
+        }
+
+        public static BasicTree<T> CreateBasicTree<T>(byte maxChildCount,
+            byte maxLevel,
+            Func<BasicTree<T>.Node, T> itemProvider = null)
+        {
+            var root = CreateBasicNode<T>(maxChildCount, maxLevel);
+
+            if (itemProvider != null)
+            {
+                foreach (var node in EnumerateDescendant(root).Cast<BasicTree<T>.Node>())
+                    node.Item = itemProvider(node);
+            }
+
+            return new BasicTree<T>(root);
+        }
+
+        public static BasicTree<T> CreateBasicTree<T>(Func<BasicTree<T>.Node, T> itemProvider = null)
+        {
+            byte lvl = SampleFactory.CreateBytes(0, 13).First();
+
+            if (lvl == 0)
+                return new BasicTree<T>();
+
+            return CreateBasicTree<T>(4, (byte)(lvl - 1), itemProvider);
+        }
+
+        public static BinaryTree<T> CreateBinaryTree<T>(Func<BinaryTree<T>.Node, T> itemProvider = null)
+        {
+            byte lvl = SampleFactory.CreateBytes(0, 13).First();
+
+            if (lvl == 0)
+                return new BinaryTree<T>();
+
+            return CreateBinaryTree<T>((byte)(lvl - 1), itemProvider);
+        }
+
+        public static BinaryTree<T> CreateBinaryTree<T>(byte maxLevel, Func<BinaryTree<T>.Node, T> itemProvider = null)
+        {
+            var root = CreateBinaryNode<T>(maxLevel);
+
+            if (itemProvider != null)
+            {
+                foreach (var node in EnumerateDescendant(root).Cast<BinaryTree<T>.Node>())
+                    node.Item = itemProvider(node);
+            }
+
+            return new BinaryTree<T>(root);
+        }
+
+        public static BinaryTree<T> CreateProperBinaryTree<T>(Func<BinaryTree<T>.Node, T> itemProvider = null)
+        {
+            byte lvl = SampleFactory.CreateBytes(0, 13).First();
+
+            if (lvl == 0)
+                return new BinaryTree<T>();
+
+            return CreateProperBinaryTree<T>((byte)(lvl - 1), itemProvider);
+        }
+
+        public static BinaryTree<T> CreateProperBinaryTree<T>(byte maxLevel, Func<BinaryTree<T>.Node, T> itemProvider = null)
+        {
+            var tree = CreateBinaryTree<T>(maxLevel);
+            var improperNodes = new Queue<BinaryTree<T>.Node>();
 
             foreach (var node in tree.Nodes)
                 if (node.Degree == 1)
@@ -159,11 +181,9 @@ namespace TestApp.ADT
             while (improperNodes.Count > 0)
             {
                 var node = improperNodes.Dequeue();
-                var nodeInfo = new NodeInfo<T>(node.Item.Depth + 1);
 
-                ++node.Item.DescendantCount;
+                var child = new BinaryTree<T>.Node(default);
 
-                var child = new BinaryTree<NodeInfo<T>>.Node(nodeInfo);
                 if (node.LeftChild == null)
                     node.LeftChild = child;
                 else
@@ -172,26 +192,52 @@ namespace TestApp.ADT
 
             Assert(tree.Nodes.All(nd => nd.Degree != 1));
 
+            if (itemProvider != null)
+                foreach (var nd in tree.Nodes)
+                    nd.Item = itemProvider(nd);
+
             return tree;
         }
 
-        public static BinaryTree<NodeInfo<T>> CreateCompleteBinaryTree<T>(byte maxLevel = 16,
-            Func<BinaryTree<NodeInfo<T>>.Node, T> dataProvider = null)
+        public static BinaryTree<T> CreateCompleteBinaryTree<T>(Func<BinaryTree<T>.Node, T> itemProvider = null)
         {
-            var tree = CreateProperBinaryTree<T>(maxLevel, dataProvider);
+            int lvl = SampleFactory.CreateInts(-1, 13).First();
 
+            if (lvl == 0)
+                return new BinaryTree<T>();
+
+            BinaryTree<T> tree;
+
+            if (lvl == -1)
+            {
+                tree = new BinaryTree<T>(new BinaryTree<T>.Node(default));
+                tree.Root.LeftChild = new BinaryTree<T>.Node(default);
+            }
+            else
+                tree = CreateProperBinaryTree<T>((byte)(lvl - 1));
+
+            if (itemProvider != null)
+                foreach (var nd in tree.Nodes)
+                    nd.Item = itemProvider(nd);
+
+            return tree;
+        }
+
+        public static BinaryTree<T> CreateCompleteBinaryTree<T>(byte maxLevel, Func<BinaryTree<T>.Node, T> itemProvider = null)
+        {
+            var tree = CreateProperBinaryTree<T>(maxLevel);
 
             int h = tree.GetHeight();
 
-            if (h <= 1)
+            if (h <= 2)
                 return tree;
 
 
-            var badNodes = new Queue<(BinaryTree<NodeInfo<T>>.Node, int)>();
+            var badNodes = new Queue<(BinaryTree<T>.Node, int)>();
 
             foreach (var (node, lvl) in tree.LevelOrderTraversal())
                 if (lvl != h && node.Degree != 2)
-                    badNodes.Enqueue((node, lvl));
+                    badNodes.Enqueue(((BinaryTree<T>.Node)node, lvl));
 
             while (badNodes.Count > 0)
             {
@@ -202,8 +248,7 @@ namespace TestApp.ADT
 
                 if (node.LeftChild == null)
                 {
-                    node.LeftChild = new BinaryTree<NodeInfo<T>>.Node(new NodeInfo<T>(node.Item.Depth + 1));
-                    ++node.Item.DescendantCount;
+                    node.LeftChild = new BinaryTree<T>.Node(default);
 
                     if (lvl + 1 < h)
                         badNodes.Enqueue((node.LeftChild, lvl + 1));
@@ -211,8 +256,7 @@ namespace TestApp.ADT
 
                 if (node.RightChild == null)
                 {
-                    node.RightChild = new BinaryTree<NodeInfo<T>>.Node(new NodeInfo<T>(node.Item.Depth + 1));
-                    ++node.Item.DescendantCount;
+                    node.RightChild = new BinaryTree<T>.Node(default);
 
                     if (lvl + 1 < h)
                         badNodes.Enqueue((node.RightChild, lvl + 1));
@@ -221,11 +265,11 @@ namespace TestApp.ADT
                 Assert(node.Degree == 2);
             }
 
-            Assert(tree.Nodes.All(nd => nd.Item.Depth == h || nd.Degree == 2));
+            Assert(tree.Nodes.All(nd => !nd.IsLeaf || nd.Degree == 2));
+            Assert(tree.Nodes.All(nd => !nd.IsLeaf || tree.GetDepth(nd) == h));
 
             var leaves = tree.Leaves.ToList();
 
-            Assert(leaves.All(nd => nd.Item.Depth == h));
 
             leaves.Reverse();
 
@@ -236,16 +280,29 @@ namespace TestApp.ADT
                 var parent = leaves[i].Parent;
 
                 parent.RightChild = null;
-                --parent.Item.DescendantCount;
 
                 if (++i < n)
-                {
                     parent.LeftChild = null;
-                    --parent.Item.DescendantCount;
-                }
             }
 
+
+            if (itemProvider != null)
+                foreach (var nd in tree.Nodes)
+                    nd.Item = itemProvider(nd);
+
             return tree;
+        }
+
+
+        //private:
+        static IEnumerable<ITreeNode<T>> EnumerateDescendant<T>(ITreeNode<T> node)
+        {
+            var res = Enumerable.Repeat(node, 1);
+
+            foreach (var child in node.Children)
+                res = res.Concat(EnumerateDescendant(child));
+
+            return res;
         }
 
         public static void Display<T, N>(this ITree<T, N> tree)
@@ -264,7 +321,7 @@ namespace TestApp.ADT
             }
         }
 
-        public static void Display<T>(this BinaryTree<T> tree)                
+        public static void Display<T>(this BinaryTree<T> tree)
         {
             DisplaySubTree(tree.Root, 0);
 
@@ -288,18 +345,6 @@ namespace TestApp.ADT
                 }
             }
         }
-
-
-        //private:
-        static IEnumerable<ITreeNode<INodeInfo<T>>> PostOrderChildern<T>(BasicTree<INodeInfo<T>>.Node root)
-        {
-            var result = Enumerable.Empty<ITreeNode<INodeInfo<T>>>();
-
-            if (root.Degree > 0)
-                foreach (var child in root.Children)
-                    result = result.Concat(PostOrderChildern(child));
-
-            return result.Append(root);
-        }
     }
 }
+

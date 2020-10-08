@@ -6,98 +6,92 @@ using static easyLib.DebugHelper;
 
 namespace easyLib.ADT.Trees
 {
-    public interface ITreeNode<T>
+    public interface ITreeNode<out T>
     {
-        bool IsRoot { get; }
+        T Item { get; }
         bool IsLeaf { get; }
         ITreeNode<T> Parent { get; }
         IEnumerable<ITreeNode<T>> Children { get; }
-        bool IsDescendant(ITreeNode<T> node);
-        int Degree { get; }
-        public IEnumerable<ITreeNode<T>> GetPath();
-        int GetDepth();
-        int GetDescendantCount();
-        T Item { get; }
+        int Degree { get; }        
     }
-    //------------------------------------------------
+    //-------------------------------------------------------
 
-    public abstract class TreeNode<T>
+    public static class TreeNodes
     {
-        public T Item { get; set; }
-        public bool IsRoot => GetParent() == null;
-        public bool IsLeaf => Degree == 0;
-        public int Degree => GetChildCount();
-        public int GetDepth() => GetNodePath().Count() - 1;
-        public bool IsAncestor(TreeNode<T> node)
+        public static bool IsDescendantOf<T>(this ITreeNode<T> node, ITreeNode<T> ancestor)
         {
             Assert(node != null);
-            TreeNode<T> nd = this;
+            Assert(ancestor != null);
 
             do
             {
-                if (node == nd)
+                if (node == ancestor)
                     return true;
 
-                nd = nd.GetParent();
+                node = node.Parent;
 
-            } while (nd != null);
+            } while (node != null);
 
             return false;
         }
-        public int GetDescendantCount()
+
+        public static bool IsAncestorOf<T>(this ITreeNode<T> node, ITreeNode<T> descendant)
         {
-            int childCount = GetChildCount();
+            Assert(node != null);
+            Assert(descendant != null);
+
+            return descendant.IsDescendantOf(node);
+        }
+
+        public static int GetDescendantCount<T>(this ITreeNode<T> node)
+        {
+            Assert(node != null);
+
+            int childCount = node.Degree;
 
             if (childCount == 0)
                 return 1;
 
+            if (childCount == 1)
+                return CountDescendants(node.Children.Single()) + 1;
+
+
             var nbers = new int[childCount];
 
-            Parallel.ForEach(GetChildren(), (node, _, ndx)
+            Parallel.ForEach(node.Children, (node, _, ndx)
                 => nbers[ndx] = CountDescendants(node));
 
             return nbers.Aggregate((total, sz) => total += sz) + 1;
 
-
-            int CountDescendants(TreeNode<T> node)
+            //-------------
+            int CountDescendants(ITreeNode<T> child)
             {
                 int n = 1;
-                foreach (TreeNode<T> child in node.GetChildren())
-                    n += CountDescendants(child);
+                foreach (var nd in child.Children)
+                    n += CountDescendants(nd);
 
                 return n;
             }
         }
 
-
-        //protected:
-        protected TreeNode(T item)
+        public static IEnumerable<ITreeNode<T>> GetPath<T>(this ITreeNode<T> node,  ITreeNode<T> ancestor = null)
         {
-            Item = item;
-        }
+            Assert(node != null);
+            Assert(ancestor == null || node.IsDescendantOf(ancestor));
 
-        protected IEnumerable<TreeNode<T>> GetNodePath()
-        {
-            var stack = new Stack<TreeNode<T>>();
-            TreeNode<T> node = this;
+            var stack = new Stack<ITreeNode<T>>();
+            
+            ITreeNode<T> endNode = ancestor?.Parent;
 
             do
             {
                 stack.Push(node);
-                node = node.GetParent();
+                node = node.Parent;
 
-            } while (node != null);
+            } while (node != endNode);
 
             return stack;
         }
-        protected abstract TreeNode<T> GetParent();
-        protected abstract IEnumerable<TreeNode<T>> GetChildren();
-        protected abstract int GetChildCount();
-
-        protected virtual bool ClassInvariant =>
-                (IsLeaf == (Degree == 0)) &&
-                (IsRoot || GetParent().GetChildren().Contains(this)) &&
-                (GetNodePath().Last() == this);
     }
 
 }

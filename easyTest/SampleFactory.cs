@@ -12,6 +12,7 @@ namespace easyLib.Test
         static Random m_rand = new Random();
 
         public static byte NextByte => CreateBytes().First();
+        public static int NextInt => CreateInts().First();
 
         public static IEnumerable<byte> CreateBytes(byte min = byte.MinValue, byte limit = byte.MaxValue)
         {

@@ -8,39 +8,69 @@ namespace easyLib.ADT.Trees
 {
     partial class BasicTree<T>
     {
-        public sealed class Node : TreeNode<T>, ITreeNode<T>
+        public sealed class Node : ITreeNode<T>
         {
             readonly List<Node> m_children = new List<Node>();
+            Node m_parent;
 
-            public Node(T item) :
-                base(item)
+
+            public Node(T item)
             {
+                Item = item;
+
                 Assert(ClassInvariant);
             }
 
             public Node(T item, IEnumerable<T> children) :
-                base(item)
+                this(item)
             {
                 Assert(children != null);
 
                 foreach (T child in children)
-                    m_children.Add(new Node(child) { Parent = this });
+                    m_children.Add(new Node(child) { m_parent = this });
 
                 Assert(ClassInvariant);
             }
 
-            public Node Parent { get; private set; }
+            public T Item { get; set; }
 
-            public IEnumerable<Node> Children => m_children;
+            public bool IsLeaf => Degree == 0;
 
-            public IEnumerable<Node> GetPath() => GetNodePath().Cast<Node>();
+            public int Degree => m_children.Count;
+
+            public Node Parent
+            {
+                get => m_parent;
+                set
+                {
+                    Assert(value == null || !this.IsAncestorOf(value));
+
+                    if (value == null)
+                        Parent?.DetachChild(this);
+                    else
+                        value.AppendChild(this);
+
+                    Assert(ClassInvariant);
+                }
+            }
+
+            public IEnumerable<Node> Children => m_children;            
+
+            public IEnumerable<Node> GetPath(Node ancestor = null)
+            {
+                //since ancestor is of type Node there is no way 
+                //to add a node of other type in the path
+
+                Assert(ancestor == null || this.IsDescendantOf(ancestor));
+
+                return TreeNodes.GetPath(this, ancestor).Cast<Node>();
+            }
 
             public Node PrependChild(T item)
             {
                 var node = new Node(item);
-
                 m_children.Insert(0, node);
-                node.Parent = this;
+                node.m_parent = this;
 
                 Assert(ClassInvariant);
                 return node;
@@ -49,11 +79,11 @@ namespace easyLib.ADT.Trees
             public void PrependChild(Node node)
             {
                 Assert(node != null);
-                Assert(!IsAncestor(node));
+                Assert(!this.IsDescendantOf(node));
 
                 m_children.Insert(0, node);
-                node.Parent?.DetachChild(node);
-                node.Parent = this;
+                node.m_parent?.DetachChild(node);
+                node.m_parent = this;
 
                 Assert(ClassInvariant);
             }
@@ -63,7 +93,7 @@ namespace easyLib.ADT.Trees
                 var node = new Node(item);
 
                 m_children.Add(node);
-                node.Parent = this;
+                node.m_parent = this;
 
                 Assert(ClassInvariant);
                 return node;
@@ -72,24 +102,24 @@ namespace easyLib.ADT.Trees
             public void AppendChild(Node node)
             {
                 Assert(node != null);
-                Assert(!IsAncestor(node));
+                Assert(!this.IsDescendantOf(node));
 
                 m_children.Add(node);
-                node.Parent?.DetachChild(node);
-                node.Parent = this;
+                node.m_parent?.DetachChild(node);
+                node.m_parent = this;
 
                 Assert(ClassInvariant);
             }
 
             public Node InsertSibling(T item)
             {
-                Assert(!IsRoot);
+                Assert(Parent != null);
 
                 var node = new Node(item);
 
-                int ndx = Parent.m_children.IndexOf(this);
-                Parent.m_children.Insert(ndx + 1, node);
-                node.Parent = Parent;
+                int ndx = m_parent.m_children.IndexOf(this);
+                m_parent.m_children.Insert(ndx + 1, node);
+                node.m_parent = Parent;
 
                 Assert(ClassInvariant);
                 return node;
@@ -98,13 +128,13 @@ namespace easyLib.ADT.Trees
             public void InsertSibling(Node node)
             {
                 Assert(node != null);
-                Assert(!IsRoot);
-                Assert(!IsAncestor(node));
+                Assert(Parent != null);
+                Assert(!this.IsDescendantOf(node));
 
-                int ndx = Parent.m_children.IndexOf(this);
-                Parent.m_children.Insert(ndx + 1, node);
-                node.Parent?.DetachChild(node);
-                node.Parent = Parent;
+                int ndx = m_parent.m_children.IndexOf(this);
+                m_parent.m_children.Insert(ndx + 1, node);
+                node.m_parent?.DetachChild(node);
+                node.m_parent = Parent;
 
                 Assert(ClassInvariant);
             }
@@ -114,43 +144,21 @@ namespace easyLib.ADT.Trees
                 Assert(node != null);
                 Assert(Children.Contains(node));
 
-                node.Parent = null;
+                node.m_parent = null;
                 m_children.Remove(node);
 
                 Assert(ClassInvariant);
             }
 
-            public bool IsDescendant(Node node)
-            {
-                Assert(node != null);
-
-                return node.IsAncestor(this);
-            }
-
-
             ITreeNode<T> ITreeNode<T>.Parent => Parent;
-
             IEnumerable<ITreeNode<T>> ITreeNode<T>.Children => Children;
 
-            IEnumerable<ITreeNode<T>> ITreeNode<T>.GetPath() => GetPath();
 
-            bool ITreeNode<T>.IsDescendant(ITreeNode<T> node)
-            {
-                Assert(node != null);
-
-                if (node is Node nd)
-                    return IsDescendant(nd);
-
-                return false;
-            }
-
-
-            //protected:
-            protected override TreeNode<T> GetParent() => Parent;
-
-            protected override IEnumerable<TreeNode<T>> GetChildren() => Children;
-
-            protected override int GetChildCount() => m_children.Count;
+            //private:           
+            bool ClassInvariant =>
+                    (IsLeaf == (Degree == 0)) &&
+                    (Parent == null || Parent.Children.Contains(this)) &&
+                    (GetPath().Last() == this);
         }
     }
 }

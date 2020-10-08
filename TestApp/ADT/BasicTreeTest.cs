@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-
 namespace TestApp.ADT
 {
     class BasicTreeTest : UnitTest
@@ -18,297 +17,384 @@ namespace TestApp.ADT
         //protected:
         protected override void Start()
         {
-            //assume SampleFactoryTest ok
-            var emptyTree = new BasicTree<int>();
-            Ensure(emptyTree.IsEmpty);
-            Ensure(emptyTree.Root == null);
-
-            var randByte = SampleFactory.CreateBytes().First();
-
-            var tree = TreeFactory.CreateTree<int>(nd => nd.Item.Data = nd.Item.GetHashCode());
-
-            Ensure(tree.Items.All(item => item.Data == item.GetHashCode()));
-            Ensure(tree.GetNodeCount() == (tree.IsEmpty ? 0 : tree.Root.Item.DescendantCount));
-            Ensure(tree.Nodes.All(nd => tree.Contains(nd)));
-            Ensure(tree.Leaves.All(nd => nd.IsLeaf));
-            Ensure(tree.Nodes.Except(tree.Leaves).All(nd => !nd.IsLeaf));
-
-            while (tree.IsEmpty)
-                tree = TreeFactory.CreateTree<int>();
-
-            var roots = new List<ITreeNode<INodeInfo<int>>>();
-
-            roots.Add(tree.Root);
-            roots.AddRange(tree.Root.Children);
-
-
-            var trees = BasicTree<INodeInfo<int>>.Split(tree).ToList();
-
-            Ensure(roots.Count == trees.Count);
-            Ensure(trees.All(t => roots.Contains(t.Root)));
-
-            tree = TreeFactory.CreateTree<int>();
-            tree.Clear();
-
-            Ensure(tree.IsEmpty);
-
-            PostOrderTest();
+            ConstructionTest();
             PreOrderTest();
+            PostOrderTest();
             InOrderTest();
-            BreadthFirstTest();
-            GetHeightTest();
+            LevelOrderTest();
+            PathTest();
+            DepthTest();
+            HeightTest();
+            SubTreesTest();
+            MergeTest();
             PathLengthTest();
+            //assume SampleFactoryTest ok
+            //var emptyTree = new BasicTree<int>();
+            //Ensure(emptyTree.IsEmpty);
+            //Ensure(emptyTree.Root == null);
+
+            //var randByte = SampleFactory.CreateBytes().First();
+
+            //var tree = TreeFactory.CreateTree<int>(nd => nd.Item.Data = nd.Item.GetHashCode());
+
+            //Ensure(tree.All(item => item.Data == item.GetHashCode()));
+            //Ensure(tree.GetCount() == (tree.IsEmpty ? 0 : tree.Root.Item.DescendantCount));
+            //Ensure(tree.Nodes.All(nd => tree.Contains(nd)));
+            //Ensure(tree.Leaves.All(nd => nd.IsLeaf));
+            //Ensure(tree.Nodes.Except(tree.Leaves).All(nd => !nd.IsLeaf));
+
+            //while (tree.IsEmpty)
+            //    tree = TreeFactory.CreateTree<int>();
+
+            //var items = tree.ToArray();
+
+            //var roots = new List<ITreeNode<INodeInfo<int>>>();
+
+            //roots.Add(tree.Root);
+            //roots.AddRange(tree.Root.Children);
+            //var data = roots.Select(r => r.Item).ToArray();
+
+            //var trees = tree.Split().ToList();
+
+            //Ensure(roots.Count == trees.Count);
+            //Ensure(trees.All(t => data.Contains(t.Root.Item)));
+
+            //var tree1 = BasicTree<INodeInfo<int>>.Merge(trees[0].Root.Item, trees.Skip(1).ToArray());
+            //var items1 = tree1.ToArray();
+
+            //Ensure(items.SequenceEqual(items1));
+
+
+            //tree = TreeFactory.CreateTree<int>();
+            //tree.Clear();
+
+            //Ensure(tree.IsEmpty);
+
+            //PostOrderTest();
+            //PreOrderTest();
+            //InOrderTest();
+            //BreadthFirstTest();
+            //GetHeightTest();
+            //PathLengthTest();
         }
 
         //private:
-
-        void PathLengthTest()
+        void MergeTest()
         {
-            //assume SampleTestFactory(); PreOrderTest() ok
-            var tree = TreeFactory.CreateTree<int>();
+            BasicTree<int> tree;
 
-            while (tree.IsEmpty)
-                tree = TreeFactory.CreateTree<int>();
+            int n = 0;
+            Func<BasicTree<int>.Node, int> dataProvider = _ => n++;
 
-            Trace("PathLengthTest()\nTree properties:",
-                 $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
+            do
+                tree = TreeFactory.CreateBasicTree(dataProvider);
+            while (tree.GetCount() < 2);
 
 
-            GetExternalPathLengthTest(tree);
-            GetInternalPathLengthTest(tree);
+            var data = tree.ToArray();
+            var trees = tree.SubTrees().ToArray();
+            var mergeData = BasicTree<int>.Merge(tree.Root.Item, trees).ToArray();
+
+            Ensure(tree.Root.IsLeaf);
+            Ensure(mergeData.SequenceEqual(data));
         }
 
-        void GetExternalPathLengthTest(BasicTree<INodeInfo<int>> tree)
+        void SubTreesTest()
         {
-            int len = 0;
-            foreach (var node in tree.Nodes)
-                if (node.IsLeaf)
-                    len += node.Item.Depth;
+            BasicTree<int> tree;
 
-            Ensure(len == tree.GetExternalPathLength());
+            do
+                tree = TreeFactory.CreateBasicTree<int>();
+            while (tree.IsEmpty);
+
+
+            Ensure(tree.SubTrees().All(t => tree.Root.Children.Contains(t.Root)));
+            Ensure(tree.SubTrees().Select(t => t.GetCount()).Sum() == tree.GetCount() - 1);
+
+            var h = tree.GetHeight();
+            Ensure(tree.SubTrees().All(t => t.GetHeight() == h - 1));
+
+            var seq = from node in tree.Nodes.Skip(1)
+                      from t in tree.SubTrees()
+                      select new { Depth = tree.GetDepth(node), STDepth = t.GetDepth(node) };
+
+            Ensure(seq.All(p => p.Depth == p.STDepth + 1));
+
+            Ensure(tree.SubTrees().All(t => !t.Contains(tree.Root)));
+
+            var seq1 = from t in tree.SubTrees()
+                       from node in t.Nodes
+                       where t.GetPath(node).Contains(tree.Root)
+                       select node;
+
+            Ensure(!seq1.Any());
         }
 
-        void GetInternalPathLengthTest(BasicTree<INodeInfo<int>> tree)
+        void HeightTest()
         {
-            int len = 0;
-            foreach (var node in tree.Nodes)
-                if (!node.IsLeaf)
-                    len += node.Item.Depth;
-
-            Ensure(len == tree.GetInternalPathLength());
-        }
-
-        void PostOrderTest()
-        {
-            //assume SampleFactoryTest() ok
-            var tree = CreatePostOrderTree();
-
-            Trace("PostOrderTest()\nTree properties:",
-                $"IsEmpty: {tree.IsEmpty}",
-                $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
+            BasicTree<int> tree;
 
 
-            Ensure(tree.Enumerate(TraversalOrder.PostOrder).Count() == tree.GetNodeCount());
-
-            if (tree.IsEmpty)
+            Func<BasicTree<int>.Node, int> LevelProvider = nd =>
             {
-                int ndx = 0;
-                Ensure(tree.Enumerate(TraversalOrder.PostOrder).All(node => node.Item.Data == ndx++));
+                if (nd.Parent == null)
+                    return 0;
+
+                return nd.Parent.Item + 1;
+            };
+
+            do
+                tree = TreeFactory.CreateBasicTree<int>(LevelProvider);
+            while (tree.IsEmpty);
+
+
+            int lvl = 0;
+            foreach (var node in tree.Nodes)
+                lvl = Math.Max(lvl, node.Item);
+
+            var h = tree.GetHeight();
+            Ensure(h == lvl);
+            Ensure(tree.Nodes.All(nd => tree.GetDepth(nd) <= h));
+        }
+
+        void DepthTest()
+        {
+            BasicTree<int> tree;
+
+            Func<BasicTree<int>.Node, int> DepthProvider = nd => nd.Parent == null ? 0 : nd.Parent.Item + 1;
+
+            do
+                tree = TreeFactory.CreateBasicTree<int>(DepthProvider);
+            while (tree.IsEmpty);
+
+
+            Ensure(tree.Nodes.All(nd => nd.Item == tree.GetDepth(nd)));
+        }
+
+        void PathTest()
+        {
+            BasicTree<int> tree;
+
+            do
+                tree = TreeFactory.CreateBasicTree<int>();
+            while (tree.IsEmpty);
+
+
+            Ensure(tree.Nodes.All(nd => tree.GetPath(nd).First() == tree.Root));
+            Ensure(tree.Nodes.All(nd => tree.GetPath(nd).Last() == nd));
+            Ensure(tree.Nodes.All(nd => tree.GetPath(nd).All(node => nd.IsDescendantOf(node))));
+            Ensure(tree.Nodes.All(nd => tree.GetPath(nd).All(node => node.IsAncestorOf(nd))));
+
+            var seq = from node in tree.Nodes
+                      let path = tree.GetPath(node)
+                      from nd in tree.Nodes
+                      where nd.IsAncestorOf(node) && !path.Contains(nd)
+                      select nd;
+
+            Ensure(!seq.Any());
+        }
+
+        void LevelOrderTest()
+        {
+            BasicTree<int> tree;
+
+            do
+                tree = TreeFactory.CreateBasicTree<int>(ItemProvider);
+            while (tree.IsEmpty);
+
+            Ensure(tree.Root.Item == 0);
+            Ensure(tree.Enumerate(TraversalOrder.BreadthFirst).
+                Where(nd => nd != tree.Root).
+                All(nd => nd.Item == nd.Parent.Item + 1));
+
+            int lvl = 0;
+            Func<BasicTree<int>.Node, bool> pred = nd =>
+            {
+                bool result = nd.Item >= lvl;
+                lvl = nd.Item;
+
+                return result;
+            };
+
+            Ensure(tree.Enumerate(TraversalOrder.BreadthFirst).All(pred));
+            Ensure(tree.LevelOrderTraversal().All(pair => pair.level == pair.node.Item));
+            Ensure(tree.LevelOrderTraversal().
+                Select(pair => pair.node).
+                SequenceEqual(tree.Enumerate(TraversalOrder.BreadthFirst)));
+
+
+            //----
+            int ItemProvider(BasicTree<int>.Node node)
+            {
+                if (node.Parent == null)
+                    return 0;
+
+                return node.Parent.Item + 1;
             }
         }
 
         void InOrderTest()
         {
-            //assume SampleFactoryTest() ok
-            var tree = CreateInOrderTree();
-            Trace("InOrderTest()\nTree properties:",
-                $"IsEmpty: {tree.IsEmpty}",
-                $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
+            BasicTree<int> tree;
 
-            Ensure(tree.Enumerate(TraversalOrder.InOrder).Count() == tree.GetNodeCount());
+            do
+                tree = TreeFactory.CreateBasicTree<int>();
+            while (tree.IsEmpty);
 
-            if (tree.IsEmpty)
-            {
-                int ndx = 0;
-                Ensure(tree.Enumerate(TraversalOrder.InOrder).All(node => node.Item.Data == ndx++));
-            }
+            int n = 0;
+            foreach (var node in tree.Enumerate(TraversalOrder.InOrder))
+                node.Item = n++;
+
+            Ensure(tree.Enumerate(TraversalOrder.InOrder).
+                Where(nd => !nd.IsLeaf).
+                All(nd => nd.Children.First().Item < nd.Item));
+
+            Ensure(tree.Enumerate(TraversalOrder.InOrder).
+                Where(nd => nd.Degree > 1).
+                All(nd => nd.Children.Skip(1).All(child => child.Item > nd.Item)));
+        }
+
+        void PostOrderTest()
+        {
+            BasicTree<int> tree;
+
+            do
+                tree = TreeFactory.CreateBasicTree<int>();
+            while (tree.IsEmpty);
+
+            int n = 0;
+
+            foreach (var node in tree.Enumerate(TraversalOrder.PostOrder))
+                node.Item = n++;
+
+            Ensure(tree.Root.Item == n - 1);
+            Ensure(tree.Enumerate(TraversalOrder.PostOrder).SkipWhile(nd => nd != tree.Root).Count() == 1);
+            Ensure(tree.Enumerate(TraversalOrder.PostOrder).TakeWhile(nd => nd != tree.Root).All(nd => nd.Item < nd.Parent.Item));
+            Ensure(tree.Enumerate(TraversalOrder.PostOrder).Where(nd => nd.IsLeaf).SequenceEqual(tree.Leaves));
         }
 
         void PreOrderTest()
         {
-            //assume SampleFactoryTest() ok
-            var tree = CreatePreOrderTree();
-            Trace("PretOrderTest()\nTree properties:",
-                $"IsEmpty: {tree.IsEmpty}",
-                $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
+            int ndx = 0;
+            Func<BasicTree<int>.Node, int> provider = _ => ndx++;
 
-            Ensure(tree.Enumerate(TraversalOrder.PreOrder).Count() == tree.GetNodeCount()); ;
+            BasicTree<int> tree;
 
-            if (tree.IsEmpty)
-            {
-                int ndx = 0;
-                Ensure(tree.Enumerate(TraversalOrder.PreOrder).All(node => node.Item.Data == ndx++));
-            }
+            do
+                tree = TreeFactory.CreateBasicTree(provider);
+            while (tree.IsEmpty);
+
+            ndx = 0;
+            Ensure(tree.Enumerate(TraversalOrder.PreOrder).All(nd => nd.Item == ndx++));
+            Ensure(tree.Enumerate(TraversalOrder.PreOrder).First() == tree.Root);
+            Ensure(tree.Nodes.SequenceEqual(tree.Enumerate(TraversalOrder.PreOrder)));
+            Ensure(tree.SequenceEqual(tree.Enumerate(TraversalOrder.PreOrder).Select(nd => nd.Item)));
+            Ensure(tree.Leaves.All(nd => nd.IsLeaf));
+            Ensure(tree.Enumerate(TraversalOrder.PreOrder).Where(nd => nd.IsLeaf).SequenceEqual(tree.Leaves));
+            Ensure(tree.Enumerate(TraversalOrder.PreOrder).SequenceEqual(tree.Nodes));
+            Ensure(tree.Nodes.Count() == tree.GetCount());
+            Ensure(tree.Nodes.All(nd => tree.Contains(nd)));
         }
 
-        void BreadthFirstTest()
+        void ConstructionTest()
         {
-            //assume SampleFactoryTest, InOrderTest() ok
-            var tree = CreateLevelOrderTree();
+            BasicTree<int> tree = new BasicTree<int>();
+            Ensure(tree.IsEmpty);
+            Ensure(tree.Root == null);
+            Ensure(tree.GetCount() == 0);
 
-            Trace("BreadthFirstTest()\nTree properties:",
-                $"IsEmpty: {tree.IsEmpty}",
-                $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
+            var datum = SampleFactory.NextInt;
+            tree = new BasicTree<int>(datum);
+            Ensure(tree.Root.Item == datum);
+            Ensure(!tree.IsEmpty);
+            Ensure(tree.GetHeight() == 0);
+            Ensure(tree.GetCount() == 1);
 
-            Ensure(tree.Enumerate(TraversalOrder.BreadthFirst).Count() == tree.GetNodeCount());
-            Ensure(tree.LevelOrderTraversal().Count() == tree.GetNodeCount());
+            datum = SampleFactory.NextInt;
+            var node = new BasicTree<int>.Node(datum);
+            tree = new BasicTree<int>(node);
+            Ensure(tree.Root == node);
+            Ensure(tree.Root.Item == datum);
+            Ensure(tree.Contains(node));
+            Ensure(tree.GetHeight() == 0);
+            Ensure(tree.GetCount() == 1);
 
-            if (!tree.IsEmpty)
-            {
-                int ndx = 0;
-                Ensure(tree.Enumerate(TraversalOrder.BreadthFirst).All(node => node.Item.Data == ndx++));
-                Ensure(tree.LevelOrderTraversal().All(pair => pair.level == pair.node.Item.Depth));
-            }
+            datum = SampleFactory.NextInt;
+            var data = SampleFactory.CreateInts().Take(SampleFactory.CreateSBytes(min: 1).First()).ToArray();
+            tree = new BasicTree<int>(datum, data);
+            Ensure(!tree.IsEmpty);
+            Ensure(tree.Root.Item == datum);
+            Ensure(tree.Root.Children.Select(nd => nd.Item).SequenceEqual(data));
+            Ensure(tree.GetCount() == data.Length + 1);
+            Ensure(tree.Root.Children.All(nd => tree.Contains(nd)));
+            Ensure(tree.GetHeight() == 1);
 
-            
+            int n = 0;
+            tree = TreeFactory.CreateBasicTree<int>(nd => ++n);
+            Ensure(tree.GetCount() == n);
+            Ensure(tree.IsEmpty || tree.GetCount() == tree.Root.GetDescendantCount());
+
+            tree.Clear();
+            Ensure(tree.IsEmpty);
         }
 
-        BasicTree<INodeInfo<int>> CreateLevelOrderTree()
+
+        void PathLengthTest()
         {
-            var tree = TreeFactory.CreateTree<int>();
+            BasicTree<int> tree;
 
-            if (!tree.IsEmpty)
-            {
-                int maxLevel = TagLevelNode(tree.Root, 0);
-                int prevTag = (maxLevel << 1) - 1;
+            do
+                tree = TreeFactory.CreateBasicTree<int>();
+            while (tree.IsEmpty);
 
-                for (int lvl = 0; lvl <= maxLevel; ++lvl)
-                    foreach (var node in tree.Nodes.Where(nd => nd.Item.Data == lvl))
-                        node.Item.Data = ++prevTag;
+            foreach (var node in tree.Nodes)
+                node.Item = tree.GetDepth(node);
 
+            Ensure(tree.GetExternalPathLength() == ExternalPathLength(tree));
 
-                foreach (var node in tree.Nodes)
-                    node.Item.Data -= maxLevel << 1;
-            }
+            Ensure(tree.GetInternalPathLength() == InternalPathLength(tree));
 
-            return tree;
+            int n = tree.Leaves.Count();
+            var weights = SampleFactory.CreateInts().Take(n).ToArray();
+            var dict = new Dictionary<BasicTree<int>.Node, int>();
+
+            int ndx = 0;
+            foreach (var node in tree.Leaves)
+                dict[node] = weights[ndx++];
+
+            Func<BasicTree<int>.Node, int> itemWeight = nd => dict[nd];
+
+            Ensure(tree.GetWeightedExternalPathLength(itemWeight) == WeightedExternalPathLength(tree, dict));
         }
 
-        void GetHeightTest()
+        int WeightedExternalPathLength(BasicTree<int> tree, Dictionary<BasicTree<int>.Node, int> dic)
         {
-            //assume SampleFactoryTest ok
-            var tree = TreeFactory.CreateTree<int>();
-
-            while (tree.IsEmpty)
-                tree = TreeFactory.CreateTree<int>();
-
-            Trace("GetHeightTest()\nTree properties:",
-                $"Descendants count: {tree.Root?.Item.DescendantCount ?? 0}");
-
-            int maxLevel = TagLevelNode(tree.Root, 0);
-            Ensure(tree.GetHeight() == maxLevel);
-        }
-
-        static BasicTree<INodeInfo<int>> CreatePostOrderTree()
-        {
-            int tag = 0;
-
-            Func<ITreeNode<INodeInfo<int>>, int> tagger = node => node.Item.Data = tag++;
-
-            return TreeFactory.CreateTree<int>(tagger);
-        }
-
-        static BasicTree<INodeInfo<int>> CreatePreOrderTree()
-        {
-            var tree = TreeFactory.CreateTree<int>();
-
-            if (!tree.IsEmpty)
-                TagNode(tree.Root);
-
-            return tree;
-
-            //---------
-            void TagNode(ITreeNode<INodeInfo<int>> node)
-            {
-                if (node.IsRoot)
-                    node.Item.Data = 0;
-                else
-                    node.Item.Data = Pred(node).Item.Data + 1;
-
-
-                foreach (var child in node.Children)
-                    TagNode(child);
-            }
-
-            ITreeNode<INodeInfo<int>> Pred(ITreeNode<INodeInfo<int>> node)
-            {
-                if (node.IsRoot)
-                    return null;
-
-                if (node.Parent.Children.First() == node)
-                    return node.Parent;
-
-                var pred = PrevSibling(node);
-
-                while (!pred.IsLeaf)
-                    pred = pred.Children.Last();
-
-                return pred;
-            }
-        }
-
-        static BasicTree<INodeInfo<int>> CreateInOrderTree()
-        {
-            var tree = TreeFactory.CreateTree<int>(_ => -1);
-            ITreeNode<INodeInfo<int>> pred = null;
-
-            if (!tree.IsEmpty)
-                TagNode(tree.Root);
-
-            return tree;
-
-            //---------
-            void TagNode(ITreeNode<INodeInfo<int>> node)
-            {
+            var wl = 0;
+            foreach (var node in tree.Nodes)
                 if (node.IsLeaf)
-                {
-                    node.Item.Data = pred == null ? 0 : pred.Item.Data + 1;
-                    pred = node;
-                }
-                else
-                {
-                    TagNode(node.Children.First());
-                    node.Item.Data = pred.Item.Data + 1;
-                    pred = node;
+                    wl += node.Item * dic[node];
 
-                    foreach (var child in node.Children.Skip(1))
-                        TagNode(child);
-                }
-            }
+            return wl;
         }
 
-        static ITreeNode<INodeInfo<int>> PrevSibling(ITreeNode<INodeInfo<int>> node)
+        int ExternalPathLength(BasicTree<int> tree)
         {
-            ITreeNode<INodeInfo<int>> prevSibling = null;
+            int len = 0;
+            foreach (var node in tree.Nodes)
+                if (node.IsLeaf)
+                    len += node.Item;
 
-            foreach (var child in node.Parent.Children)
-                if (child != node)
-                    prevSibling = child;
-                else
-                    break;
-
-            return prevSibling;
+            return len;
         }
 
-        int TagLevelNode(ITreeNode<INodeInfo<int>> node, int lvl)
+        int InternalPathLength(BasicTree<int> tree)
         {
-            int lvlMax = lvl;
-            node.Item.Data = lvl;
+            int len = 0;
+            foreach (var node in tree.Nodes)
+                if (!node.IsLeaf)
+                    len += node.Item;
 
-            foreach (var child in node.Children)
-                lvlMax = Math.Max(lvlMax, TagLevelNode(child, lvl + 1));
-
-            return lvlMax;
+            return len;
         }
     }
 }

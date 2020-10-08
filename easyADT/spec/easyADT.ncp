@@ -4,312 +4,116 @@
     <Name>Trees.Tree</Name>
     <Language>CSharp</Language>
     <Entities>
-      <Entity type="Interface">
-        <Name>ITreeNode&lt;T&gt;</Name>
-        <Access>Public</Access>
-        <Location left="722" top="57" />
-        <Size width="280" height="231" />
-        <Collapsed>False</Collapsed>
-        <Member type="Property">IEnumerable&lt;ITreeNode&lt;T&gt;&gt; Children { get; }</Member>
-        <Member type="Property">int Degree { get; }</Member>
-        <Member type="Property">bool IsLeaf { get; }</Member>
-        <Member type="Property">bool IsRoot { get; }</Member>
-        <Member type="Property">T Item { get; }</Member>
-        <Member type="Property">ITreeNode&lt;T&gt; Parent { get; }</Member>
-        <Member type="Method">int GetDepth()</Member>
-        <Member type="Method">int GetDescendantCount()</Member>
-        <Member type="Method">IEnumerable&lt;ITreeNode&lt;T&gt;&gt; GetPath()</Member>
-        <Member type="Method">bool IsDescendant(ITreeNode&lt;T&gt; node)</Member>
-      </Entity>
       <Entity type="Class">
-        <Name>TreeNode&lt;T&gt;</Name>
+        <Name>Trees</Name>
         <Access>Public</Access>
-        <Location left="402" top="57" />
-        <Size width="272" height="298" />
+        <Location left="654" top="202" />
+        <Size width="498" height="213" />
         <Collapsed>False</Collapsed>
-        <Member type="Property">public T Item { get; set; }</Member>
-        <Member type="Property">public bool IsRoot { get; }</Member>
-        <Member type="Property">public bool IsLeaf { get; }</Member>
-        <Member type="Property">public int Degree { get; }</Member>
-        <Member type="Method">public int GetDepth()</Member>
-        <Member type="Method">public bool IsAncestor(TreeNode&lt;T&gt; node)</Member>
-        <Member type="Method">public int GetDescendantCount()</Member>
-        <Member type="Constructor">protected TreeNode()</Member>
-        <Member type="Method">protected IEnumerable&lt;TreeNode&lt;T&gt;&gt; GetNodePath()</Member>
-        <Member type="Method">protected abstract TreeNode&lt;T&gt; GetParent()</Member>
-        <Member type="Method">protected abstract IEnumerable&lt;TreeNode&lt;T&gt;&gt; GetChildren()</Member>
-        <Member type="Method">protected abstract int GetChildCount()</Member>
-        <Member type="Property">protected virtual int ClassInvariant { get; }</Member>
-        <Modifier>Abstract</Modifier>
+        <Member type="Method">public static IEnumerable&lt;ITreeNode&lt;T&gt;&gt; Enumerate&lt;T, N&gt;(ITree&lt;T, N&gt; tree, TraversalOrder order)</Member>
+        <Member type="Method">public static int GetExternalPathLength&lt;T, N&gt;(ITree&lt;T, N&gt; tree)</Member>
+        <Member type="Method">public static void GetInternalPathLength&lt;T, N&gt;(ITree&lt;T, N&gt; tree)</Member>
+        <Member type="Method">public static int GetWeightedExternalPathLength&lt;T, N&gt;(ITree&lt;T, N&gt; tree, Func&lt;N, int&gt; leafWeight)</Member>
+        <Member type="Method">public static IEnumerable&lt;ValueTuple&gt; LevelOrderTraversal&lt;T, N&gt;(ITree&lt;T, N&gt; tree)</Member>
+        <Member type="Method">public static int GetHeight&lt;T, N&gt;(ITree&lt;T, N&gt; tree)</Member>
+        <Member type="Method">public static bool Contains&lt;T, N&gt;(ITree&lt;T, N&gt; tree, ITreeNode&lt;T&gt; node)</Member>
+        <Member type="Method">public static int GetDepth&lt;T, N&gt;(ITree&lt;T,N&gt; tree, ITreeNode&lt;T&gt; node)</Member>
+        <Modifier>Static</Modifier>
       </Entity>
       <Entity type="Comment">
-        <Text>=&gt; IsParent == null</Text>
-        <Location left="172" top="76" />
-        <Size width="127" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>Degree == 0</Text>
-        <Location left="207" top="142" />
-        <Size width="92" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>=&gt; GetChildCount()</Text>
-        <Location left="48" top="186" />
-        <Size width="120" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>=&gt; GetNodePath() - 1</Text>
-        <Location left="187" top="234" />
-        <Size width="135" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>=&gt; GetNodePath().Contains(node)</Text>
-        <Location left="86" top="313" />
-        <Size width="213" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>  (IsLeaf == (Degree == 0)) &amp;&amp;
-  (IsRoot || GetParent().GetChildren().Contains(this)) &amp;&amp;
-  (GetNodePath().Last() == this);</Text>
-        <Location left="67" top="393" />
-        <Size width="312" height="60" />
-      </Entity>
-      <Entity type="Interface">
-        <Name>ITree&lt;T, N&gt;</Name>
-        <Access>Public</Access>
-        <Location left="738" top="336" />
-        <Size width="207" height="197" />
-        <Collapsed>False</Collapsed>
-        <Member type="Property">bool IsEmpty { get; }</Member>
-        <Member type="Property">IEnumerable&lt;T&gt; Items { get; }</Member>
-        <Member type="Property">IEnumerable&lt;N&gt; Leaves { get; }</Member>
-        <Member type="Property">IEnumerable&lt;N&gt; Nodes { get; }</Member>
-        <Member type="Property">N Root { get; }</Member>
-        <Member type="Method">bool Contains(N node)</Member>
-        <Member type="Method">int GetHeight()</Member>
-        <Member type="Method">int GetNodeCount()</Member>
-      </Entity>
-      <Entity type="Comment">
-        <Text>where N: ITreeNode&lt;T&gt;</Text>
-        <Location left="976" top="324" />
-        <Size width="145" height="50" />
-      </Entity>
-      <Entity type="Class">
-        <Name>Tree&lt;T, N&gt;</Name>
-        <Access>Public</Access>
-        <Location left="750" top="584" />
-        <Size width="207" height="298" />
-        <Collapsed>False</Collapsed>
-        <Member type="Field">private N m_root</Member>
-        <Member type="Property">public bool IsEmpty { get; }</Member>
-        <Member type="Property">public IEnumerable&lt;T&gt; Items { get; }</Member>
-        <Member type="Property">public IEnumerable&lt;N&gt; Leaves { get; }</Member>
-        <Member type="Property">public IEnumerable&lt;N&gt; Nodes { get; }</Member>
-        <Member type="Property">public N Root { get; }</Member>
-        <Member type="Method">public void Clear()</Member>
-        <Member type="Method">public bool Contains(N node)</Member>
-        <Member type="Method">public int GetHeight()</Member>
-        <Member type="Method">public int GetNodeCount()</Member>
-        <Member type="Constructor">protected Tree(N root)</Member>
-        <Member type="Method">protected virtual int NodeCount()</Member>
-        <Member type="Property">protected virtual bool ClassInvariant { get; }</Member>
-        <Modifier>Abstract</Modifier>
-      </Entity>
-      <Entity type="Comment">
-        <Text>where N: class, ITreeNode&lt;T&gt;</Text>
-        <Location left="949" top="502" />
-        <Size width="172" height="50" />
+        <Text>ValueTupe =&gt; (ITreeNode&lt;T&gt; node, int level)</Text>
+        <Location left="324" top="202" />
+        <Size width="248" height="50" />
       </Entity>
       <Entity type="Enum">
         <Name>TraversalOrder</Name>
         <Access>Public</Access>
-        <Location left="1026" top="76" />
+        <Location left="497" top="29" />
         <Size width="163" height="129" />
         <Collapsed>False</Collapsed>
-        <Value>InOrder</Value>
         <Value>PreOrder</Value>
+        <Value>InOrder</Value>
         <Value>PostOrder</Value>
         <Value>BreadthFirst</Value>
       </Entity>
-      <Entity type="Comment">
-        <Text>=&gt;m_root</Text>
-        <Location left="513" top="601" />
-        <Size width="80" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>=&gt; GetNodeCount() == 0</Text>
-        <Location left="494" top="666" />
-        <Size width="160" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>m_root = null</Text>
-        <Location left="543" top="776" />
-        <Size width="95" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>IsEmpty || Root.Parent == null</Text>
-        <Location left="494" top="912" />
-        <Size width="175" height="50" />
-      </Entity>
-      <Entity type="Class">
-        <Name>Trees</Name>
+      <Entity type="Interface">
+        <Name>Itree&lt;T, N&gt;</Name>
         <Access>Public</Access>
-        <Location left="1046" top="601" />
-        <Size width="396" height="145" />
+        <Location left="324" top="445" />
+        <Size width="300" height="180" />
         <Collapsed>False</Collapsed>
-        <Member type="Method">public static IEnumerable&lt;N&gt; Enumerate(ITree&lt;T, N&gt; tree, TraversalOrder order)</Member>
-        <Member type="Method">public static int GetExternalPathLength(ITree&lt;T, N&gt; tree)</Member>
-        <Member type="Method">public static int GetInternalPathLength(ITree&lt;T, N&gt; tree)</Member>
-        <Member type="Method">public static int GetWeightedExternalPathLength(ITree&lt;T, N&gt; tree)</Member>
-        <Modifier>Static</Modifier>
+        <Member type="Property">N Root { get; }</Member>
+        <Member type="Property">IEnumerable&lt;N&gt; Nodes { get; }</Member>
+        <Member type="Property">IEnumerable&lt;N&gt; Leaves { get; }</Member>
+        <Member type="Property">bool IsEmpty { get; }</Member>
+        <Member type="Method">IEnumerable&lt;N&gt; Enumerate(TraversalOrder order)</Member>
+        <Member type="Method">int GetCount()</Member>
+      </Entity>
+      <Entity type="Interface">
+        <Name>IEnumerable&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="379" top="277" />
+        <Size width="163" height="61" />
+        <Collapsed>True</Collapsed>
+      </Entity>
+      <Entity type="Comment">
+        <Text>where N: ItreeNode&lt;T&gt;</Text>
+        <Location left="83" top="360" />
+        <Size width="150" height="50" />
       </Entity>
       <Entity type="Comment">
         <Text>Extension class</Text>
-        <Location left="1180" top="480" />
-        <Size width="127" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>=&gt;this.Enumerate(TravsersalOrder.PreOrder)</Text>
-        <Location left="340" top="719" />
-        <Size width="253" height="50" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>=&gt; NodeCount()</Text>
-        <Location left="482" top="838" />
-        <Size width="113" height="50" />
+        <Location left="796" top="65" />
+        <Size width="101" height="50" />
       </Entity>
     </Entities>
     <Relationships>
-      <Relationship type="Comment" first="2" second="1">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>374</X>
-          <Y>150</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="3" second="1">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>376</X>
-          <Y>167</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="4" second="1">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>377</X>
-          <Y>185</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="5" second="1">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>377</X>
-          <Y>201</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="6" second="1">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>377</X>
-          <Y>218</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="7" second="1">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>373</X>
-          <Y>337</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="9" second="8">
+      <Relationship type="Comment" first="1" second="0">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>926</X>
-          <Y>354</Y>
+          <X>597</X>
+          <Y>227</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>970</X>
-          <Y>362</Y>
+          <X>629</X>
+          <Y>347</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Realization" first="10" second="8">
+      <Relationship type="Generalization" first="3" second="4">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>460</X>
+          <Y>420</Y>
+        </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>818</X>
-          <Y>558</Y>
+          <X>460</X>
+          <Y>347</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Comment" first="11" second="10">
+      <Relationship type="Comment" first="5" second="3">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>258</X>
+          <Y>397</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>299</X>
+          <Y>465</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="6" second="0">
         <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>983</X>
-          <Y>607</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="13" second="10">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>725</X>
-          <Y>678</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="14" second="10">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>725</X>
-          <Y>692</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="15" second="10">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>722</X>
-          <Y>795</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="16" second="10">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>725</X>
-          <Y>831</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="19" second="10">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>724</X>
-          <Y>729</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="18" second="17">
-        <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>1148</X>
-          <Y>576</Y>
+        <BendPoint relativeToStartShape="True">
+          <X>846</X>
+          <Y>140</Y>
         </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="20" second="10">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>725</X>
-          <Y>813</Y>
+          <X>846</X>
+          <Y>177</Y>
         </BendPoint>
       </Relationship>
     </Relationships>
@@ -318,99 +122,136 @@
     <Name>Trees.BasicTree</Name>
     <Language>CSharp</Language>
     <Entities>
+      <Entity type="Class">
+        <Name>Node</Name>
+        <Access>Public</Access>
+        <Location left="79" top="180" />
+        <Size width="357" height="434" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">readonly List&lt;Node&gt; m_children</Member>
+        <Member type="Field">Node m_parent</Member>
+        <Member type="Constructor">public Node(T item)</Member>
+        <Member type="Constructor">public Node(T Item, IEnumerable&lt;T&gt; children)</Member>
+        <Member type="Property">public T Item { get; set; }</Member>
+        <Member type="Property">public bool IsLeaf { get; }</Member>
+        <Member type="Property">public int Degree { get; }</Member>
+        <Member type="Property">Node Parent { get; }</Member>
+        <Member type="Property">public IEnumerable&lt;Node&gt; Children { get; }</Member>
+        <Member type="Method">public IEnumerable&lt;Node&gt; GetPath(Node ancestor = null)</Member>
+        <Member type="Method">public void PrependChild(Node node)</Member>
+        <Member type="Method">public Node PrependChild(T item)</Member>
+        <Member type="Method">public void AppendChild(Node node)</Member>
+        <Member type="Method">public Node AppendChild(T item)</Member>
+        <Member type="Method">public void InsertSibling(Node node)</Member>
+        <Member type="Method">public Node InsertSibling(T item)</Member>
+        <Member type="Method">public void DetachNode(Node node)</Member>
+        <Member type="Property">ITreeNode&lt;T&gt; ITreeNode&lt;T&gt;.Parent { get; }</Member>
+        <Member type="Property">IEnumerable&lt;ITreeNode&lt;T&gt;&gt; ITreeNode&lt;T&gt;.Children { get; }</Member>
+        <Member type="Property">boll ClassInvariant { get; }</Member>
+        <Modifier>Sealed</Modifier>
+      </Entity>
       <Entity type="Interface">
         <Name>ITreeNode&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="230" top="25" />
-        <Size width="162" height="216" />
+        <Location left="178" top="43" />
+        <Size width="163" height="61" />
         <Collapsed>True</Collapsed>
-      </Entity>
-      <Entity type="Class">
-        <Name>Node&lt;T&gt;</Name>
-        <Access>Public</Access>
-        <Location left="474" top="25" />
-        <Size width="162" height="77" />
-        <Collapsed>True</Collapsed>
-        <Modifier>Abstract</Modifier>
-      </Entity>
-      <Entity type="Class">
-        <Name>Node&lt;T&gt;</Name>
-        <Access>Public</Access>
-        <Location left="247" top="172" />
-        <Size width="357" height="434" />
-        <Collapsed>False</Collapsed>
-        <Member type="Field">private readonly List&lt;Node&gt; m_children</Member>
-        <Member type="Constructor">public Node(T item)</Member>
-        <Member type="Constructor">public Node(T item, IEnumerable&lt;T&gt; children)</Member>
-        <Member type="Property">public IEnumerable&lt;Node&gt; Children { get; }</Member>
-        <Member type="Property">public Node Parent { get; }</Member>
-        <Member type="Method">public Node AppendChild(T item)</Member>
-        <Member type="Method">public void AppendChild(Node node)</Member>
-        <Member type="Method">public void DetachChild()</Member>
-        <Member type="Method">public IEnumerable&lt;Node&gt; GetPath()</Member>
-        <Member type="Method">public Node InsertSibling(T item)</Member>
-        <Member type="Method">public void InsertSibling(Node node)</Member>
-        <Member type="Method">public bool IsDescendant(Node node)</Member>
-        <Member type="Method">public Node PrependChild(T item)</Member>
-        <Member type="Method">public void PrependChild(Node node)</Member>
-        <Member type="Method">protected override int GetChildCount()</Member>
-        <Member type="Method">protected override IEnumerable&lt;ITreeNode&lt;T&gt;&gt; GetChildren()</Member>
-        <Member type="Method">protected override TreeNode&lt;T&gt; GetParent()</Member>
-        <Member type="Property">IEnumerable&lt;ITreeNode&lt;T&gt;&gt; ITreeNode&lt;T&gt;.Children { get; }</Member>
-        <Member type="Property">ITreeNode&lt;T&gt; ITreeNode&lt;T&gt;.Parent { get; }</Member>
-        <Member type="Method">IEnumerable&lt;ITreeNode&lt;T&gt;&gt; ITreeNode&lt;T&gt;.GetPath()</Member>
-        <Member type="Method">bool ITreeNode&lt;T&gt;.IsDescendant(ITreeNode&lt;T&gt; node)</Member>
-        <Modifier>Sealed</Modifier>
       </Entity>
       <Entity type="Class">
         <Name>BasicTree&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="791" top="203" />
-        <Size width="320" height="128" />
+        <Location left="684" top="234" />
+        <Size width="346" height="349" />
         <Collapsed>False</Collapsed>
         <Member type="Constructor">public BasicTree(Node root = null)</Member>
         <Member type="Constructor">public BasicTree(T item, IEnumerable&lt;T&gt; children = null)</Member>
-        <Member type="Method">public static IEnumerable&lt;BasicTree&lt;T&gt;&gt; Split(BasicTree&lt;T&gt; tree)</Member>
+        <Member type="Property">public Node Root { get; set; }</Member>
+        <Member type="Property">public IEnumerable&lt;Node&gt; Nodes { get; }</Member>
+        <Member type="Property">public IEnumerable&lt;Node&gt; Leaves { get; }</Member>
+        <Member type="Property">public bool IsEmpty { get; }</Member>
+        <Member type="Method">public int GetCount()</Member>
+        <Member type="Method">public IEnumerable&lt;Node&gt; Enumerate(TraversalOrder order)</Member>
+        <Member type="Method">public IEnumerator&lt;T&gt; GetEnumerator()</Member>
+        <Member type="Method">public IEnumerable&lt;Node&gt; GetPath(Node node)</Member>
+        <Member type="Method">public void Clear()</Member>
+        <Member type="Method">public IEnumerable&lt;BasicTree&lt;T&gt;&gt; SubTrees()</Member>
+        <Member type="Method">public static BasicTree&lt;T&gt; Merge(T item, params BasicTree&lt;T&gt;[] trees)</Member>
+        <Member type="Method">IEnumerator Enumerable.GetEnumerator()</Member>
         <Modifier>None</Modifier>
       </Entity>
-      <Entity type="Class">
-        <Name>Tree&lt;T, N&gt;</Name>
+      <Entity type="Interface">
+        <Name>ITree&lt;T, N&gt;</Name>
         <Access>Public</Access>
-        <Location left="776" top="28" />
-        <Size width="162" height="216" />
+        <Location left="764" top="72" />
+        <Size width="163" height="61" />
         <Collapsed>True</Collapsed>
-        <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Comment">
-        <Text>with N = BasicTree&lt;T&gt;.Node</Text>
-        <Location left="985" top="35" />
-        <Size width="226" height="50" />
+        <Text>where N = BasicTree&lt;T&gt;.Node</Text>
+        <Location left="1055" top="116" />
+        <Size width="183" height="50" />
       </Entity>
     </Entities>
     <Relationships>
-      <Relationship type="Generalization" first="2" second="1">
+      <Relationship type="Realization" first="0" second="1">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
-      </Relationship>
-      <Relationship type="Realization" first="2" second="0">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-      </Relationship>
-      <Relationship type="Nesting" first="3" second="2">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-      </Relationship>
-      <Relationship type="Comment" first="5" second="4">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>259</X>
+          <Y>155</Y>
+        </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>963</X>
-          <Y>54</Y>
+          <X>259</X>
+          <Y>113</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Generalization" first="3" second="4">
+      <Relationship type="Realization" first="2" second="3">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>845</X>
+          <Y>209</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>845</X>
+          <Y>142</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Nesting" first="2" second="0">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>659</X>
+          <Y>408</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>461</X>
+          <Y>408</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="4" second="3">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>1030</X>
+          <Y>141</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>952</X>
+          <Y>94</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="4" second="2">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>1130</X>
+          <Y>191</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>1068</X>
+          <Y>259</Y>
+        </BendPoint>
       </Relationship>
     </Relationships>
   </ProjectItem>
@@ -435,85 +276,90 @@
         <Collapsed>True</Collapsed>
       </Entity>
       <Entity type="Class">
-        <Name>TreeNode&lt;T&gt;</Name>
-        <Access>Public</Access>
-        <Location left="479" top="42" />
-        <Size width="162" height="216" />
-        <Collapsed>True</Collapsed>
-        <Modifier>Abstract</Modifier>
-      </Entity>
-      <Entity type="Class">
         <Name>Node&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="376" top="312" />
-        <Size width="357" height="400" />
+        <Location left="386" top="312" />
+        <Size width="357" height="371" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private Node m_leftChild</Member>
         <Member type="Field">private Node m_rightChild</Member>
         <Member type="Constructor">public Node(T item = default, Node leftChild = null, Node rightChild = null)</Member>
+        <Member type="Property">public int Item { get; set; }</Member>
         <Member type="Property">public Node Parent { get; private set; }</Member>
         <Member type="Property">public Node LeftChild { get; set; }</Member>
         <Member type="Property">public Node RightChild { get; set; }</Member>
         <Member type="Property">public IEnumerable&lt;Node&gt; Children { get; }</Member>
+        <Member type="Property">public bool IsLeaf { get; }</Member>
+        <Member type="Property">public int Degree { get; }</Member>
         <Member type="Method">public IEnumerable&lt;Node&gt; GetPath()</Member>
-        <Member type="Method">public bool IsDescendant(Node node)</Member>
-        <Member type="Method">bool ITreeNode&lt;T&gt;.IsDescendant(ITreeNode&lt;T&gt; node)</Member>
-        <Member type="Method">IEnumerable&lt;ITreeNode&lt;T&gt;&gt; ITreeNode&lt;T&gt;.GetPath()</Member>
         <Member type="Property">IBinaryTreeNode&lt;T&gt; IBinaryTreeNode&lt;T&gt;.LeftChild { get; }</Member>
         <Member type="Property">IBinaryTreeNode&lt;T&gt; IBinaryTreeNode&lt;T&gt;.RightChild { get; }</Member>
         <Member type="Property">ITreeNode&lt;T&gt; ITreeNode&lt;T&gt;.Parent { get; }</Member>
         <Member type="Property">IEnumerable&lt;ITreeNode&lt;T&gt;&gt; ITreeNode&lt;T&gt;.Children { get; }</Member>
-        <Member type="Method">protected override int GetChildCount()</Member>
-        <Member type="Method">protected override IEnumerable&lt;TreeNode&lt;T&gt;&gt; GetChildren()</Member>
-        <Member type="Method">protected override TreeNode&lt;T&gt; GetParent()</Member>
-        <Member type="Property">protected override bool ClassInvariant { get; }</Member>
+        <Member type="Property">bool ClassInvariant { get; }</Member>
         <Modifier>Sealed</Modifier>
       </Entity>
       <Entity type="Interface">
         <Name>IBinaryTree&lt;T, N&gt;</Name>
         <Access>Public</Access>
-        <Location left="905" top="163" />
-        <Size width="163" height="78" />
+        <Location left="1100" top="231" />
+        <Size width="163" height="95" />
         <Collapsed>False</Collapsed>
         <Member type="Method">bool IsProper()</Member>
+        <Member type="Method">bool IsComplete()</Member>
       </Entity>
       <Entity type="Interface">
         <Name>ITree&lt;T, N&gt;</Name>
         <Access>Public</Access>
-        <Location left="890" top="55" />
+        <Location left="1100" top="61" />
         <Size width="162" height="216" />
         <Collapsed>True</Collapsed>
-      </Entity>
-      <Entity type="Comment">
-        <Text>where N : IBinaryTreeNode&lt;T&gt;</Text>
-        <Location left="1132" top="81" />
-        <Size width="175" height="50" />
       </Entity>
       <Entity type="Class">
         <Name>BinaryTree&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="839" top="420" />
-        <Size width="620" height="145" />
+        <Location left="882" top="439" />
+        <Size width="665" height="373" />
         <Collapsed>False</Collapsed>
         <Member type="Constructor">public BinaryTree(Node root = null)</Member>
         <Member type="Constructor">public BinaryTree(T item)</Member>
+        <Member type="Property">public Node Root { get; set; }</Member>
+        <Member type="Property">public bool IsEmpty { get; }</Member>
+        <Member type="Property">public IEnumerable&lt;Node&gt; Nodes { get; }</Member>
+        <Member type="Property">public IEnumerable&lt;Node&gt; Leaves { get; }</Member>
+        <Member type="Method">public int GetCount()</Member>
         <Member type="Method">public bool IsProper()</Member>
+        <Member type="Method">public bool IsComplete()</Member>
+        <Member type="Method">public IEnumerable&lt;Node&gt; GetPath(Node node)</Member>
+        <Member type="Method">public IEnumerable&lt;Node&gt; Enumerate(TraversalOrder order)</Member>
+        <Member type="Method">public IEnumerator&lt;T&gt; GetEnumerator()</Member>
+        <Member type="Method">public void Clear()</Member>
+        <Member type="Method">public IEnumerable&lt;BinaryTree&lt;T&gt;&gt; SubTrees()</Member>
+        <Member type="Method">public static BinaryTree&lt;T&gt; Merge(T item, BinaryTree&lt;T&gt; lfetTree, BinaryTree&lt;T&gt; rightTree)</Member>
         <Member type="Method">public static BinaryTree&lt;T&gt; BuildTree(IList&lt;T&gt; inOrderTraversal, IList&lt;T&gt; otherTraversal, TraversalOrder otherTraversalOrder)</Member>
+        <Member type="Method">public static BinaryTree&lt;T&gt; BuildTree&lt;U&gt;(IList&lt;U&gt; inOrderTraversal, Func&lt;U, T&gt; selector, TraversalOrder otherTraversalOrder)</Member>
         <Modifier>Sealed</Modifier>
-      </Entity>
-      <Entity type="Class">
-        <Name>Tree&lt;T, N&gt;</Name>
-        <Access>Public</Access>
-        <Location left="1132" top="176" />
-        <Size width="162" height="216" />
-        <Collapsed>True</Collapsed>
-        <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Comment">
         <Text>with:
 N = BinaryTree&lt;T&gt;.Node&gt;</Text>
-        <Location left="1022" top="312" />
+        <Location left="1387" top="248" />
         <Size width="160" height="55" />
+      </Entity>
+      <Entity type="Class">
+        <Name>BinaryTrees</Name>
+        <Access>Public</Access>
+        <Location left="666" top="50" />
+        <Size width="288" height="111" />
+        <Collapsed>False</Collapsed>
+        <Member type="Method">public static bool IsProper&lt;T, N&gt;(IBinaryTree&lt;T, N&gt; tree)</Member>
+        <Member type="Method">public static bool IsComplete&lt;T, N&gt;(IBinaryTree&lt;T, N&gt; tree)</Member>
+        <Modifier>Static</Modifier>
+      </Entity>
+      <Entity type="Comment">
+        <Text>Extension class</Text>
+        <Location left="432" top="53" />
+        <Size width="103" height="50" />
       </Entity>
     </Entities>
     <Relationships>
@@ -521,49 +367,73 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
       </Relationship>
-      <Relationship type="Generalization" first="3" second="2">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-      </Relationship>
-      <Relationship type="Comment" first="6" second="4">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>1093</X>
-          <Y>184</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Generalization" first="4" second="5">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-      </Relationship>
-      <Relationship type="Generalization" first="7" second="8">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-      </Relationship>
-      <Relationship type="Realization" first="7" second="4">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-      </Relationship>
-      <Relationship type="Comment" first="9" second="7">
+      <Relationship type="Generalization" first="3" second="4">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>1108</X>
-          <Y>392</Y>
+          <X>1181</X>
+          <Y>206</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>1139</X>
-          <Y>392</Y>
+          <X>1181</X>
+          <Y>131</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Nesting" first="7" second="3">
+      <Relationship type="Realization" first="5" second="3">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>1181</X>
+          <Y>414</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>1181</X>
+          <Y>351</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="6" second="5">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>1473</X>
+          <Y>328</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>1294</X>
+          <Y>414</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Nesting" first="5" second="2">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
       </Relationship>
-      <Relationship type="Realization" first="3" second="0">
+      <Relationship type="Realization" first="2" second="0">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
+      </Relationship>
+      <Relationship type="Comment" first="6" second="3">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>1362</X>
+          <Y>275</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>1288</X>
+          <Y>256</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="8" second="7">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>560</X>
+          <Y>78</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>641</X>
+          <Y>78</Y>
+        </BendPoint>
       </Relationship>
     </Relationships>
   </ProjectItem>
@@ -572,7 +442,7 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
     <Language>CSharp</Language>
     <Entities>
       <Entity type="Interface">
-        <Name>IBinaryree&lt;T, N&gt;</Name>
+        <Name>IBinaryree&lt;T&gt;</Name>
         <Access>Public</Access>
         <Location left="180" top="396" />
         <Size width="162" height="216" />
@@ -581,36 +451,36 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
       <Entity type="Interface">
         <Name>IHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="443" top="124" />
-        <Size width="163" height="112" />
+        <Location left="532" top="117" />
+        <Size width="163" height="129" />
         <Collapsed>False</Collapsed>
         <Member type="Property">int Count { get; }</Member>
+        <Member type="Property">bool IsEmpty { get; }</Member>
         <Member type="Method">T Pop()</Member>
         <Member type="Method">T Peek()</Member>
-      </Entity>
-      <Entity type="Comment">
-        <Text>With:
-N = IBinaryTreeNode&lt;T&gt;</Text>
-        <Location left="166" top="530" />
-        <Size width="160" height="50" />
       </Entity>
       <Entity type="Class">
         <Name>LinkedHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="402" top="579" />
-        <Size width="163" height="179" />
+        <Location left="443" top="647" />
+        <Size width="245" height="264" />
         <Collapsed>False</Collapsed>
         <Member type="Field">readonly BinaryTree&lt;T&gt; m_tree</Member>
+        <Member type="Field">readonly Func&lt;T, T, bool&gt; m_before</Member>
         <Member type="Field">int m_count</Member>
+        <Member type="Constructor">public LinkedHeap(Func&lt;T, T, bool&gt; before = null)</Member>
+        <Member type="Constructor">public LinkedHeap(Comparison&lt;T&gt; comparison)</Member>
         <Member type="Method">protected override T PopItem()</Member>
         <Member type="Method">protected override T PeekItem()</Member>
         <Member type="Method">protected override void AddItem(item T)</Member>
-        <Member type="Method">protected override int NodeCount()</Member>
+        <Member type="Method">protected override int GetItemCount()</Member>
+        <Member type="Method">public bool IsComplete()</Member>
+        <Member type="Method">public bool IsProper()</Member>
         <Modifier>Sealed</Modifier>
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_tree.Root.Item</Text>
-        <Location left="217" top="632" />
+        <Location left="229" top="626" />
         <Size width="133" height="50" />
       </Entity>
       <Entity type="Comment">
@@ -621,78 +491,152 @@ N = IBinaryTreeNode&lt;T&gt;</Text>
       <Entity type="Class">
         <Name>FlatHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="783" top="553" />
-        <Size width="163" height="162" />
+        <Location left="906" top="610" />
+        <Size width="226" height="231" />
         <Collapsed>False</Collapsed>
         <Member type="Field">readonly List&lt;T&gt; m_items</Member>
+        <Member type="Field">Func&lt;T, T, bool&gt; m_before</Member>
+        <Member type="Constructor">public FlatHeap(Func&lt;T, T, bool&gt; precedes)</Member>
         <Member type="Method">protected override T PopItem()</Member>
         <Member type="Method">protected override T PeekItem()</Member>
         <Member type="Method">protected override void AddItem(item T)</Member>
-        <Member type="Method">protected override int NodeCount()</Member>
+        <Member type="Method">protected override int GetItemCount()</Member>
         <Modifier>Sealed</Modifier>
       </Entity>
       <Entity type="Class">
         <Name>Heap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="443" top="289" />
-        <Size width="163" height="213" />
+        <Location left="532" top="300" />
+        <Size width="163" height="230" />
         <Collapsed>False</Collapsed>
         <Member type="Property">public int Count { get; }</Member>
+        <Member type="Property">public bool IsEmpty { get; }</Member>
         <Member type="Method">public abstract T Pop()</Member>
         <Member type="Method">public abstract T Peek()</Member>
         <Member type="Method">public abstract void Add(T iterm)</Member>
         <Member type="Method">protected abstract T PopItem()</Member>
         <Member type="Method">protected abstract T PeekItem()</Member>
         <Member type="Method">protected abstract void AddItem(item T)</Member>
-        <Member type="Method">protected abstract int NodeCount()</Member>
+        <Member type="Method">protected abstract int GetItemCount()</Member>
         <Modifier>Abstract</Modifier>
+      </Entity>
+      <Entity type="Comment">
+        <Text>=&gt; true</Text>
+        <Location left="217" top="779" />
+        <Size width="67" height="50" />
+      </Entity>
+      <Entity type="Comment">
+        <Text>=&gt; m_item.Count</Text>
+        <Location left="741" top="832" />
+        <Size width="118" height="50" />
       </Entity>
     </Entities>
     <Relationships>
-      <Relationship type="Dependency" first="7" second="1">
+      <Relationship type="Dependency" first="6" second="1">
         <Label>
         </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
       </Relationship>
-      <Relationship type="Generalization" first="3" second="7">
+      <Relationship type="Generalization" first="2" second="6">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
       </Relationship>
-      <Relationship type="Generalization" first="6" second="7">
+      <Relationship type="Generalization" first="5" second="6">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>864</X>
-          <Y>528</Y>
+          <X>987</X>
+          <Y>585</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Comment" first="5" second="3">
+      <Relationship type="Comment" first="4" second="2">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>377</X>
-          <Y>741</Y>
+          <X>418</X>
+          <Y>859</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Comment" first="4" second="3">
+      <Relationship type="Comment" first="3" second="2">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>377</X>
-          <Y>707</Y>
+          <X>417</X>
+          <Y>825</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Dependency" first="3" second="0">
+      <Relationship type="Dependency" first="2" second="0">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>496</X>
+          <Y>622</Y>
+        </BendPoint>
       </Relationship>
-      <Relationship type="Comment" first="2" second="3">
+      <Relationship type="Comment" first="7" second="2">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="False">
+          <X>415</X>
+          <Y>878</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="8" second="5">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>377</X>
-          <Y>593</Y>
+          <X>877</X>
+          <Y>790</Y>
+        </BendPoint>
+      </Relationship>
+    </Relationships>
+  </ProjectItem>
+  <ProjectItem type="NClass.DiagramEditor.ClassDiagram.Diagram" assembly="NClass.DiagramEditor, Version=2.4.1823.0, Culture=neutral, PublicKeyToken=null">
+    <Name>Trees.TreeNode</Name>
+    <Language>CSharp</Language>
+    <Entities>
+      <Entity type="Interface">
+        <Name>TreeNode&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="157" top="34" />
+        <Size width="194" height="163" />
+        <Collapsed>False</Collapsed>
+        <Member type="Property">T Item { get; }</Member>
+        <Member type="Property">bool IsLeaf { get; }</Member>
+        <Member type="Property">ITreeNode&lt;T&gt; Parent { get; }</Member>
+        <Member type="Property">IEnumerable&lt;ITreeNode&lt;T&gt;&gt; Children { get; }</Member>
+        <Member type="Property">int Degree { get; }</Member>
+      </Entity>
+      <Entity type="Class">
+        <Name>TreeNodes</Name>
+        <Access>Public</Access>
+        <Location left="678" top="127" />
+        <Size width="503" height="145" />
+        <Collapsed>False</Collapsed>
+        <Member type="Method">public static bool IsDescendantOf&lt;T&gt;(ITreeNode&lt;T&gt; node, ITreeNode&lt;T&gt; ancestor)</Member>
+        <Member type="Method">public static bool IsAncestorOf&lt;T&gt;(ITreeNode&lt;T&gt; node, ITreeNode&lt;T&gt; descendant)</Member>
+        <Member type="Method">public static int GetDescendantCount&lt;T&gt;(ITreeNode&lt;T&gt; node)</Member>
+        <Member type="Method">public static IEnumerable&lt;ITreeNode&lt;T&gt;&gt; GetPath&lt;T&gt;(ITreeNode&lt;T&gt; node, ITreeNode&lt;T&gt; ancestor = null)</Member>
+        <Modifier>Static</Modifier>
+      </Entity>
+      <Entity type="Comment">
+        <Text>Extension class</Text>
+        <Location left="457" top="61" />
+        <Size width="98" height="50" />
+      </Entity>
+    </Entities>
+    <Relationships>
+      <Relationship type="Comment" first="2" second="1">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>580</X>
+          <Y>86</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>653</X>
+          <Y>157</Y>
         </BendPoint>
       </Relationship>
     </Relationships>

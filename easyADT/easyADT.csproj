@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Heaps\**" />
+    <EmbeddedResource Remove="Heaps\**" />
+    <None Remove="Heaps\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ezLib\easyLib.csproj" />
   </ItemGroup>
 
