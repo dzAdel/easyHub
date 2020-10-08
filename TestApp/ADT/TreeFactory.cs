@@ -3,6 +3,9 @@ using easyLib.Test;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography;
 using static easyLib.DebugHelper;
 
 
@@ -204,7 +207,7 @@ namespace TestApp.ADT
             int lvl = SampleFactory.CreateInts(-1, 13).First();
 
             if (lvl == 0)
-                return new BinaryTree<T>();
+                return new BinaryTree<T>(default(T));
 
             BinaryTree<T> tree;
 
@@ -214,7 +217,7 @@ namespace TestApp.ADT
                 tree.Root.LeftChild = new BinaryTree<T>.Node(default);
             }
             else
-                tree = CreateProperBinaryTree<T>((byte)(lvl - 1));
+                tree = CreateCompleteBinaryTree<T>((byte)(lvl));
 
             if (itemProvider != null)
                 foreach (var nd in tree.Nodes)
@@ -229,7 +232,7 @@ namespace TestApp.ADT
 
             int h = tree.GetHeight();
 
-            if (h <= 2)
+            if (h < 2)
                 return tree;
 
 
@@ -238,6 +241,16 @@ namespace TestApp.ADT
             foreach (var (node, lvl) in tree.LevelOrderTraversal())
                 if (lvl != h && node.Degree != 2)
                     badNodes.Enqueue(((BinaryTree<T>.Node)node, lvl));
+
+            var src = from node in tree.Nodes
+                      where node.Degree != 2
+                      where tree.GetDepth(node) != h
+                      select node;
+
+            var q = from p in badNodes
+                    select p.Item1;
+
+            Assert(src.All(nd => q.Contains(nd)));
 
             while (badNodes.Count > 0)
             {
@@ -265,7 +278,7 @@ namespace TestApp.ADT
                 Assert(node.Degree == 2);
             }
 
-            Assert(tree.Nodes.All(nd => !nd.IsLeaf || nd.Degree == 2));
+            Assert(tree.Nodes.All(nd => nd.IsLeaf || nd.Degree == 2));
             Assert(tree.Nodes.All(nd => !nd.IsLeaf || tree.GetDepth(nd) == h));
 
             var leaves = tree.Leaves.ToList();
@@ -308,7 +321,9 @@ namespace TestApp.ADT
         public static void Display<T, N>(this ITree<T, N> tree)
             where N : ITreeNode<T>
         {
+            System.Diagnostics.Debug.WriteLine("------------------");
             DisplaySubTree(tree.Root, 0);
+            System.Diagnostics.Debug.WriteLine("------------------");
 
             //------------
             void DisplaySubTree(ITreeNode<T> node, int ind)
@@ -323,7 +338,9 @@ namespace TestApp.ADT
 
         public static void Display<T>(this BinaryTree<T> tree)
         {
+            System.Diagnostics.Debug.WriteLine("------------------");
             DisplaySubTree(tree.Root, 0);
+            System.Diagnostics.Debug.WriteLine("------------------");
 
             //------------
             void DisplaySubTree(BinaryTree<T>.Node node, int ind)

@@ -271,26 +271,26 @@ namespace easyLib.ADT.Trees
             if (tree.Root.IsLeaf)
                 return true;
 
-            int breakLevel = -1;
+            bool breaked = false;
 
-            foreach (var (node, lvl) in tree.LevelOrderTraversal())
+            foreach (var node in tree.Enumerate(TraversalOrder.BreadthFirst))
                 switch (node.Degree)
                 {
                     case 0:
-                        if (breakLevel == -1)
-                            breakLevel = lvl;
+                        if (breaked == false)
+                            breaked = true;
 
                         break;
 
                     case 1:
-                        if (((IBinaryTreeNode<T>)node).LeftChild == null || breakLevel != -1)   // any descendant of an IBinaryTreeNode
+                        if (breaked || ((IBinaryTreeNode<T>)node).LeftChild == null)   // any descendant of an IBinaryTreeNode
                             return false;                                                       // is an IBinaryTreeNode
 
-                        breakLevel = lvl;
+                        breaked = true;
                         break;
 
                     case 2:
-                        if (breakLevel != -1)
+                        if (breaked)
                             return false;
 
                         break;

@@ -107,7 +107,7 @@ namespace easyLib.ADT.Trees
             public IEnumerable<Node> GetPath(Node ancestor)
             {
                 //since ancestor is of type Node, there is no way to insert a node of any other type
-                Assert(ancestor == null);
+                Assert(ancestor != null);
                 Assert(ancestor.IsAncestorOf(this));
 
                 return TreeNodes.GetPath(this, ancestor).Cast<Node>();

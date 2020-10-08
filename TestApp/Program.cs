@@ -37,8 +37,8 @@ namespace TestApp
             m_mgr.AddTest(new BasicTreeNodeTest());
             m_mgr.AddTest(new BasicTreeTest());
             m_mgr.AddTest(new BinaryTreeNodeTest());
-            //m_mgr.AddTest(new BinaryTreeTest());
-            //m_mgr.AddTest(new LinkedHeapTest());
+            m_mgr.AddTest(new BinaryTreeTest());
+            m_mgr.AddTest(new HeapTest());
         }
 
     }

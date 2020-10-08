@@ -13,6 +13,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Heaps\Heap.cs" />
+    <Compile Include="Heaps\LinkedHeap.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ezLib\easyLib.csproj" />
   </ItemGroup>
 

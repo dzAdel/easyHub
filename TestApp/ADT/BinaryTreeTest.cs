@@ -22,6 +22,7 @@ namespace TestApp.ADT
             PreOrderTest();
             PostOrderTest();
             BreadthFirstTest();
+            LevelOrderTest();
             MathPropertiesTest();
             ProperBTTest();
             ImproperBTTest();
@@ -82,7 +83,7 @@ namespace TestApp.ADT
             Ensure(bt.Enumerate(TraversalOrder.PreOrder).Select(nd => nd.Item).Min() == bt.Root.Item);
             Ensure(bt.Enumerate(TraversalOrder.PreOrder).
                 Skip(1).
-                All(nd => nd.Item < nd.Parent.Item));
+                All(nd => nd.Item > nd.Parent.Item));
 
             Ensure(bt.Enumerate(TraversalOrder.PreOrder).
                 Where(nd => nd.Degree == 2).
@@ -107,7 +108,7 @@ namespace TestApp.ADT
 
             Ensure(bt.Enumerate(TraversalOrder.PostOrder).
                 Where(nd => nd != bt.Root).
-                All(nd => nd.Item > nd.Parent.Item));
+                All(nd => nd.Item < nd.Parent.Item));
 
             Ensure(bt.Enumerate(TraversalOrder.PreOrder).
                 Where(nd => nd.Degree == 2).
@@ -132,11 +133,31 @@ namespace TestApp.ADT
 
             Ensure(bt.Enumerate(TraversalOrder.BreadthFirst).
                 Where(nd => nd != bt.Root).
-                All(nd => nd.Item < nd.Parent.Item));
+                All(nd => nd.Item > nd.Parent.Item));
 
             Ensure(bt.Enumerate(TraversalOrder.BreadthFirst).
                 Where(nd => nd.Degree == 2).
                 All(nd => nd.LeftChild.Item + 1 == nd.RightChild.Item));
+        }
+
+        void LevelOrderTest()
+        {
+            int ndx = 0;
+            Func<BinaryTree<int>.Node, int> itemProvider = _ => ndx++;
+            BinaryTree<int> bt;
+
+            do
+                bt = TreeFactory.CreateBinaryTree<int>();
+            while (bt.IsEmpty);
+
+            foreach (var nd in bt.Enumerate(TraversalOrder.BreadthFirst))
+                nd.Item = itemProvider(nd);
+
+            Ensure(bt.LevelOrderTraversal().All(p => bt.GetDepth(p.node) == p.level));
+            Ensure(bt.LevelOrderTraversal().First().level == 0);
+            Ensure(bt.LevelOrderTraversal().Last().level == bt.GetHeight());
+            Ensure(bt.LevelOrderTraversal().Select(p => p.node.Item).
+                SequenceEqual(bt.Enumerate(TraversalOrder.BreadthFirst).Select(nd => nd.Item)));
         }
 
         void MathPropertiesTest()
@@ -162,7 +183,11 @@ namespace TestApp.ADT
 
         void ProperBTTest()
         {
-            BinaryTree<int> bt = TreeFactory.CreateProperBinaryTree<int>();
+            BinaryTree<int> bt;
+
+            do
+                bt = TreeFactory.CreateProperBinaryTree<int>();
+            while (bt.IsEmpty);
 
             Ensure(bt.IsProper());
         }
@@ -224,7 +249,12 @@ namespace TestApp.ADT
 
         void CompleteBTTest()
         {
-            var bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            BinaryTree<int> bt;
+
+            do
+                bt = TreeFactory.CreateCompleteBinaryTree<int>();
+            while (bt.IsEmpty);
+
 
             Ensure(bt.IsComplete());
         }
@@ -283,8 +313,12 @@ namespace TestApp.ADT
             Ensure(!subTrees[0].Contains(bt.Root));
             Ensure(!subTrees[1].Contains(bt.Root));
 
-            var bt1 = BinaryTree<int>.Merge(bt.Root.Item, subTrees[0], subTrees[0]);
-            Ensure(bt1.SequenceEqual(bt));
+            var btItems = bt.ToArray();
+
+            var bt1 = BinaryTree<int>.Merge(bt.Root.Item, subTrees[0], subTrees[1]);
+            var bt1Items = bt1.ToArray();
+
+            Ensure(bt1Items.SequenceEqual(btItems));
         }
 
         void BuildTreeTest()

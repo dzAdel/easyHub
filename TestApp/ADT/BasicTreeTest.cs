@@ -28,54 +28,7 @@ namespace TestApp.ADT
             SubTreesTest();
             MergeTest();
             PathLengthTest();
-            //assume SampleFactoryTest ok
-            //var emptyTree = new BasicTree<int>();
-            //Ensure(emptyTree.IsEmpty);
-            //Ensure(emptyTree.Root == null);
 
-            //var randByte = SampleFactory.CreateBytes().First();
-
-            //var tree = TreeFactory.CreateTree<int>(nd => nd.Item.Data = nd.Item.GetHashCode());
-
-            //Ensure(tree.All(item => item.Data == item.GetHashCode()));
-            //Ensure(tree.GetCount() == (tree.IsEmpty ? 0 : tree.Root.Item.DescendantCount));
-            //Ensure(tree.Nodes.All(nd => tree.Contains(nd)));
-            //Ensure(tree.Leaves.All(nd => nd.IsLeaf));
-            //Ensure(tree.Nodes.Except(tree.Leaves).All(nd => !nd.IsLeaf));
-
-            //while (tree.IsEmpty)
-            //    tree = TreeFactory.CreateTree<int>();
-
-            //var items = tree.ToArray();
-
-            //var roots = new List<ITreeNode<INodeInfo<int>>>();
-
-            //roots.Add(tree.Root);
-            //roots.AddRange(tree.Root.Children);
-            //var data = roots.Select(r => r.Item).ToArray();
-
-            //var trees = tree.Split().ToList();
-
-            //Ensure(roots.Count == trees.Count);
-            //Ensure(trees.All(t => data.Contains(t.Root.Item)));
-
-            //var tree1 = BasicTree<INodeInfo<int>>.Merge(trees[0].Root.Item, trees.Skip(1).ToArray());
-            //var items1 = tree1.ToArray();
-
-            //Ensure(items.SequenceEqual(items1));
-
-
-            //tree = TreeFactory.CreateTree<int>();
-            //tree.Clear();
-
-            //Ensure(tree.IsEmpty);
-
-            //PostOrderTest();
-            //PreOrderTest();
-            //InOrderTest();
-            //BreadthFirstTest();
-            //GetHeightTest();
-            //PathLengthTest();
         }
 
         //private:
