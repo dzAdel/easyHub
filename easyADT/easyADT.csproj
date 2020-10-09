@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Heaps\FlatHeap.cs" />
     <Compile Include="Heaps\Heap.cs" />
     <Compile Include="Heaps\LinkedHeap.cs" />
   </ItemGroup>

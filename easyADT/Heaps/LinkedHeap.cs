@@ -1,6 +1,7 @@
 ﻿using easyLib.ADT.Trees;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static easyLib.DebugHelper;
 
 
@@ -8,27 +9,26 @@ namespace easyLib.ADT.Heaps
 {
     public sealed class LinkedHeap<T> : Heap<T>
     {
-        readonly BinaryTree<T> m_tree;
-        readonly Func<T, T, bool> m_before;
+        readonly BinaryTree<T> m_tree = new BinaryTree<T>();        
         BinaryTree<T>.Node m_tail;
         int m_count;
 
         public LinkedHeap(Func<T, T, bool> before = null)
         {
-            m_tree = new BinaryTree<T>();
-            m_before = before ?? ((a, b) => Comparer<T>.Default.Compare(a, b) < 0);
+            Before = before ?? ((a, b) => Comparer<T>.Default.Compare(a, b) < 0);
         }
 
         public LinkedHeap(Comparison<T> comparison)
         {
             Assert(comparison != null);
 
-            m_tree = new BinaryTree<T>();
-            m_before = (a, b) => comparison(a, b) < 0;
+            Before = (a, b) => comparison(a, b) < 0;
         }
 
 
         //protected:
+        protected override Func<T, T, bool> Before { get; }
+        
         protected override int GetItemCount() => m_count;
 
         protected override T PeekItem() => m_tree.Root.Item;
@@ -36,7 +36,6 @@ namespace easyLib.ADT.Heaps
         protected override T PopItem()
         {
             T result = m_tree.Root.Item;
-
 
             if (--m_count != 0)
             {
@@ -60,17 +59,17 @@ namespace easyLib.ADT.Heaps
                 while (!node.IsLeaf)
                 {
                     BinaryTree<T>.Node child = node.RightChild == null ? node.LeftChild :
-                        (m_before(node.LeftChild.Item, node.RightChild.Item) ? node.LeftChild : node.RightChild);
+                        (Before(node.LeftChild.Item, node.RightChild.Item) ? node.LeftChild : node.RightChild);
 
-                    if (!m_before(child.Item, node.Item))
+                    if (!Before(child.Item, node.Item))
                         break;
 
                     (node.Item, child.Item) = (child.Item, node.Item);
                     node = child;
                 }
 
-                Assert(m_count <= 1 || !m_before(m_tree.Root.LeftChild.Item, m_tree.Root.Item));
-                Assert(m_count <= 2 || !m_before(m_tree.Root.RightChild.Item, m_tree.Root.Item));
+                Assert(m_count <= 1 || !Before(m_tree.Root.LeftChild.Item, m_tree.Root.Item));
+                Assert(m_count <= 2 || !Before(m_tree.Root.RightChild.Item, m_tree.Root.Item));
             }
             else
                 m_tail = m_tree.Root = null;
@@ -92,7 +91,7 @@ namespace easyLib.ADT.Heaps
 
                 do
                 {
-                    if (!m_before(node.Item, node.Parent.Item))
+                    if (!Before(node.Item, node.Parent.Item))
                         break;
 
                     (node.Item, node.Parent.Item) = (node.Parent.Item, node.Item);
@@ -105,6 +104,38 @@ namespace easyLib.ADT.Heaps
 
             Assert(ClassInvariant);
         }
+
+        //protected override bool ContainsItem(T item)
+        //{
+        //    int lvlLast = -1;
+        //    bool lookNextLevel = true;
+
+        //    foreach (var (node, level) in m_tree.LevelOrderTraversal())
+        //    {
+        //        bool itemAfter = Before(node.Item, item);
+
+        //        if (!Before(item, node.Item) && !itemAfter)
+        //            return true;
+
+        //        if (lvlLast != level)
+        //        {
+        //            if (!lookNextLevel)
+        //                break;
+
+        //            lookNextLevel = false;
+        //            lvlLast = level;
+        //        }
+
+        //        if (itemAfter)
+        //            lookNextLevel = true;
+        //    }
+
+        //    return false;
+        //}
+
+
+        protected override IEnumerable<(T Value, int Level)> LevelOrderTraversal() =>
+            m_tree.LevelOrderTraversal().Select(p => (p.node.Item, p.level));
 
 
         //private:

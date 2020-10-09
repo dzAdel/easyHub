@@ -11,7 +11,7 @@ namespace TestApp.ADT
     class BinaryTreeTest : UnitTest
     {
         public BinaryTreeTest() :
-            base("BinaryTree<> test")
+            base("BinaryTree<> Test")
         { }
 
 

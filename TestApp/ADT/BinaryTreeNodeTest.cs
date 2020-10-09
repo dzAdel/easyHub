@@ -8,7 +8,7 @@ namespace TestApp.ADT
     class BinaryTreeNodeTest : UnitTest
     {
         public BinaryTreeNodeTest() :
-            base("BinaryTreeNode test")
+            base("BinaryTreeNode Test")
         { }
 
 

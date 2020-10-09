@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static easyLib.DebugHelper;
 
@@ -34,9 +36,15 @@ namespace easyLib.Test
                 return;
             }
 
-            Console.WriteLine($"Running {passCount} passes tests...");
-            Parallel.ForEach(m_tests, RunTest);
 
+            int LastRrow = Console.CursorTop;
+            Console.WriteLine($"Running {passCount} passes tests.");
+
+            Console.CursorVisible = false;            
+            Parallel.ForEach(m_tests, RunTest);
+            Console.CursorVisible = true;
+
+            Console.CursorTop = ++LastRrow;            
             Console.WriteLine("All tests finished. Press any key to continue.");
             Console.ReadKey();
 
@@ -70,6 +78,16 @@ namespace easyLib.Test
                     m_reports.Add(tst.Name, results);
 
                 var sw = new Stopwatch();
+
+                int row = Interlocked.Increment(ref LastRrow);
+
+                lock (Console.Out)
+                {
+                    Console.CursorTop = row;
+                    Console.WriteLine($"Running {tst.Name}...");
+                }
+
+
                 sw.Start();
 
                 for (int i = 0; i < passCount; ++i)
@@ -80,7 +98,11 @@ namespace easyLib.Test
 
                 sw.Stop();
 
-                Console.WriteLine($"{tst.Name} done. {FormatTime(sw.ElapsedMilliseconds)}");
+                lock (Console.Out)
+                {
+                    Console.CursorTop = row;
+                    Console.WriteLine($"{tst.Name} done. {FormatTime(sw.ElapsedMilliseconds)}");
+                }
             }
         }
 
@@ -104,6 +126,7 @@ namespace easyLib.Test
         }
 
         //private:
+
         int LogRepport(TextWriter txtWriter)
         {
             int nErr = 0;

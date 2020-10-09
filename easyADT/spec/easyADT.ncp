@@ -442,16 +442,9 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
     <Language>CSharp</Language>
     <Entities>
       <Entity type="Interface">
-        <Name>IBinaryree&lt;T&gt;</Name>
-        <Access>Public</Access>
-        <Location left="180" top="396" />
-        <Size width="162" height="216" />
-        <Collapsed>True</Collapsed>
-      </Entity>
-      <Entity type="Interface">
         <Name>IHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="532" top="117" />
+        <Location left="524" top="16" />
         <Size width="163" height="129" />
         <Collapsed>False</Collapsed>
         <Member type="Property">int Count { get; }</Member>
@@ -462,132 +455,146 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
       <Entity type="Class">
         <Name>LinkedHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="443" top="647" />
-        <Size width="245" height="264" />
+        <Location left="435" top="558" />
+        <Size width="285" height="264" />
         <Collapsed>False</Collapsed>
         <Member type="Field">readonly BinaryTree&lt;T&gt; m_tree</Member>
-        <Member type="Field">readonly Func&lt;T, T, bool&gt; m_before</Member>
         <Member type="Field">int m_count</Member>
         <Member type="Constructor">public LinkedHeap(Func&lt;T, T, bool&gt; before = null)</Member>
         <Member type="Constructor">public LinkedHeap(Comparison&lt;T&gt; comparison)</Member>
+        <Member type="Property">protected override Func&lt;T, T, bool&gt; Befor { get; }</Member>
         <Member type="Method">protected override T PopItem()</Member>
         <Member type="Method">protected override T PeekItem()</Member>
         <Member type="Method">protected override void AddItem(item T)</Member>
         <Member type="Method">protected override int GetItemCount()</Member>
-        <Member type="Method">public bool IsComplete()</Member>
-        <Member type="Method">public bool IsProper()</Member>
-        <Modifier>Sealed</Modifier>
+        <Member type="Method">protected abstract IEnumerable&lt;ValueTuple&gt; LevelOrderTraversal()</Member>
+        <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_tree.Root.Item</Text>
-        <Location left="229" top="626" />
+        <Location left="221" top="537" />
         <Size width="133" height="50" />
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_count</Text>
-        <Location left="217" top="700" />
+        <Location left="209" top="611" />
         <Size width="84" height="50" />
       </Entity>
       <Entity type="Class">
         <Name>FlatHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="906" top="610" />
-        <Size width="226" height="231" />
+        <Location left="948" top="558" />
+        <Size width="311" height="264" />
         <Collapsed>False</Collapsed>
         <Member type="Field">readonly List&lt;T&gt; m_items</Member>
-        <Member type="Field">Func&lt;T, T, bool&gt; m_before</Member>
-        <Member type="Constructor">public FlatHeap(Func&lt;T, T, bool&gt; precedes)</Member>
+        <Member type="Constructor">public FlatHeap(Func&lt;T, T, bool&gt; before)</Member>
+        <Member type="Constructor">public FlatHeap(Comparison&lt;T&gt; comparison)</Member>
+        <Member type="Constructor">public FlatHeap(int intCapacity, Func&lt;T, T, bool&gt; before = null)</Member>
+        <Member type="Constructor">public FlatHeap(int intCapacity, Comparison&lt;T&gt; comparison)</Member>
+        <Member type="Property">protected override Func&lt;T, T, bool&gt; Befor { get; }</Member>
         <Member type="Method">protected override T PopItem()</Member>
         <Member type="Method">protected override T PeekItem()</Member>
         <Member type="Method">protected override void AddItem(item T)</Member>
         <Member type="Method">protected override int GetItemCount()</Member>
-        <Modifier>Sealed</Modifier>
+        <Member type="Method">protected abstract IEnumerable&lt;ValueTuple&gt; LevelOrderTraversal()</Member>
+        <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Class">
         <Name>Heap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="532" top="300" />
-        <Size width="163" height="230" />
+        <Location left="462" top="209" />
+        <Size width="285" height="281" />
         <Collapsed>False</Collapsed>
         <Member type="Property">public int Count { get; }</Member>
         <Member type="Property">public bool IsEmpty { get; }</Member>
         <Member type="Method">public abstract T Pop()</Member>
         <Member type="Method">public abstract T Peek()</Member>
         <Member type="Method">public abstract void Add(T iterm)</Member>
+        <Member type="Method">public bool Contains(T item)</Member>
+        <Member type="Property">protected abstract Func&lt;T, T, bool&gt; Befor { get; }</Member>
         <Member type="Method">protected abstract T PopItem()</Member>
         <Member type="Method">protected abstract T PeekItem()</Member>
         <Member type="Method">protected abstract void AddItem(item T)</Member>
         <Member type="Method">protected abstract int GetItemCount()</Member>
+        <Member type="Method">protected abstract IEnumerable&lt;ValueTuple&gt; LevelOrderTraversal()</Member>
         <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Comment">
-        <Text>=&gt; true</Text>
-        <Location left="217" top="779" />
-        <Size width="67" height="50" />
+        <Text>=&gt; m_item.Count</Text>
+        <Location left="765" top="690" />
+        <Size width="118" height="50" />
       </Entity>
       <Entity type="Comment">
-        <Text>=&gt; m_item.Count</Text>
-        <Location left="741" top="832" />
-        <Size width="118" height="50" />
+        <Text>ValueTupe = (T Value, int Level)</Text>
+        <Location left="173" top="393" />
+        <Size width="181" height="50" />
       </Entity>
     </Entities>
     <Relationships>
-      <Relationship type="Dependency" first="6" second="1">
+      <Relationship type="Dependency" first="5" second="0">
         <Label>
         </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>605</X>
+          <Y>184</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>605</X>
+          <Y>170</Y>
+        </BendPoint>
       </Relationship>
-      <Relationship type="Generalization" first="2" second="6">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-      </Relationship>
-      <Relationship type="Generalization" first="5" second="6">
+      <Relationship type="Generalization" first="1" second="5">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>987</X>
-          <Y>585</Y>
+          <X>590</X>
+          <Y>533</Y>
         </BendPoint>
-      </Relationship>
-      <Relationship type="Comment" first="4" second="2">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>418</X>
-          <Y>859</Y>
+          <X>590</X>
+          <Y>515</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Comment" first="3" second="2">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>417</X>
-          <Y>825</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Dependency" first="2" second="0">
+      <Relationship type="Generalization" first="4" second="5">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>496</X>
-          <Y>622</Y>
+          <X>1096</X>
+          <Y>533</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Comment" first="7" second="2">
+      <Relationship type="Comment" first="3" second="1">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>415</X>
-          <Y>878</Y>
+          <X>410</X>
+          <Y>770</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Comment" first="8" second="5">
+      <Relationship type="Comment" first="2" second="1">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="False">
+          <X>409</X>
+          <Y>736</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="6" second="4">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>877</X>
-          <Y>790</Y>
+          <X>921</X>
+          <Y>787</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="7" second="5">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="False">
+          <X>437</X>
+          <Y>477</Y>
         </BendPoint>
       </Relationship>
     </Relationships>
