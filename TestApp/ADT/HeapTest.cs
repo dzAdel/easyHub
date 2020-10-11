@@ -1,7 +1,6 @@
 ﻿using easyLib.ADT.Heaps;
 using easyLib.Test;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace TestApp.ADT
@@ -222,7 +221,7 @@ namespace TestApp.ADT
             heap = CreateLinkedHeap(RandCount + 2);
             int n = heap.Count / 2;
 
-            for(int i = 0; i < n;++i)
+            for (int i = 0; i < n; ++i)
             {
                 heap.Add(SampleFactory.NextInt);
                 heap.Pop();
@@ -296,7 +295,7 @@ namespace TestApp.ADT
 
         static FlatHeap<int> CreateFlatHeap(int itemCount, Func<int, int, bool> before = null)
         {
-            var heap = SampleFactory.NextBool? new FlatHeap<int>(itemCount, before) : new FlatHeap<int>(before);
+            var heap = SampleFactory.NextBool ? new FlatHeap<int>(itemCount, before) : new FlatHeap<int>(before);
 
             foreach (int n in SampleFactory.CreateInts(0, 100).Take(itemCount))
                 heap.Add(n);
@@ -306,11 +305,11 @@ namespace TestApp.ADT
 
         static FlatHeap<int> CreateFlatHeap(int itemCount, Comparison<int> comparison)
         {
-            var heap = SampleFactory.NextBool? new FlatHeap<int>(itemCount, comparison) : new FlatHeap<int>(comparison);
+            var heap = SampleFactory.NextBool ? new FlatHeap<int>(itemCount, comparison) : new FlatHeap<int>(comparison);
 
             foreach (int n in SampleFactory.CreateInts(0, 100).Take(itemCount))
                 heap.Add(n);
-
+            
             return heap;
         }
     }

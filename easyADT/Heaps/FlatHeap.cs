@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using static easyLib.DebugHelper;
@@ -8,15 +9,15 @@ namespace easyLib.ADT.Heaps
 {
     public sealed class FlatHeap<T> : ExtendedHeap<T>
     {
-        readonly List<T> m_items;
-        
+        public readonly List<T> m_items;
+
         public FlatHeap(Func<T, T, bool> before = null)
         {
             m_items = new List<T>();
             Before = before ?? ((a, b) => Comparer<T>.Default.Compare(a, b) < 0);
         }
 
-        
+
         public FlatHeap(Comparison<T> comparison)
         {
             Assert(comparison != null);
@@ -47,34 +48,35 @@ namespace easyLib.ADT.Heaps
 
             Assert(ClassInvariant);
         }
-
-
+        
+        
         //protected:
         protected override Func<T, T, bool> Before { get; }
         protected override int GetItemCount() => m_items.Count;
         protected override T PeekItem() => m_items[0];
 
+        protected override IEnumerator<T> GetItemEnumerator() => m_items.GetEnumerator();
+
         protected override void AddItem(T item)
         {
-            m_items.Add(item);            
+            m_items.Add(item);
             BubbleUp(m_items.Count - 1);
-        }        
+        }
 
         protected override void RemoveItem(T item)
         {
-            int ndx = Same(m_items[0], item) ? 0 : LevelOrderTraversal().
-                Select((p, Index) => (p.Value, Index)).
-                First(p => Same(p.Value, item)).Index;
+            int ndx = Same(m_items[0], item) ? 0 : m_items.Select((Value, Index) => (Value, Index)).
+                First(p => Same(p.Value, item)).Index; //enumerate a list in seq. is a levelOrder traversal
 
             int ndxLast = m_items.Count - 1;
-            m_items[ndx] = m_items[ndxLast];            
+            m_items[ndx] = m_items[ndxLast];
             m_items.RemoveAt(ndxLast);
 
-            if (ndx != ndxLast)            
+            if (ndx != ndxLast)
                 if (ndx != 0 && Before(m_items[ndx], m_items[GetParentIndex(ndx)]))
                     BubbleUp(ndx);
                 else
-                    BubbleDown(ndx);            
+                    BubbleDown(ndx);
         }
 
         protected override IEnumerable<(T Value, int Level)> LevelOrderTraversal()
@@ -119,33 +121,33 @@ namespace easyLib.ADT.Heaps
                 (m_items[index], m_items[ndxParent]) = (m_items[ndxParent], m_items[index]);
                 index = ndxParent;
 
-            } 
+            }
         }
 
         void BubbleDown(int index)
         {
             int ndxLast = m_items.Count - 1;
-            
-                while (true)
+
+            while (true)
+            {
+                int ndxLeft = GetLeftChildIndex(index);
+
+                if (ndxLast < ndxLeft)
+                    break;
+                else
                 {
-                    int ndxLeft = GetLeftChildIndex(index);
+                    int ndxRight = GetRightChildIndex(index);
+                    int ndxChild = ndxLast < ndxRight ? ndxLeft :
+                        Before(m_items[ndxLeft], m_items[ndxRight]) ? ndxLeft : ndxRight;
 
-                    if (ndxLast < ndxLeft)
+                    if (!Before(m_items[ndxChild], m_items[index]))
                         break;
-                    else
-                    {
-                        int ndxRight = GetRightChildIndex(index);
-                        int ndxChild = ndxLast < ndxRight ? ndxLeft :
-                            Before(m_items[ndxLeft], m_items[ndxRight]) ? ndxLeft : ndxRight;
 
-                        if (!Before(m_items[ndxChild], m_items[index]))
-                            break;
-
-                        (m_items[index], m_items[ndxChild]) = (m_items[ndxChild], m_items[index]);
-                        index = ndxChild;
-                    }
-
+                    (m_items[index], m_items[ndxChild]) = (m_items[ndxChild], m_items[index]);
+                    index = ndxChild;
                 }
+
+            }
         }
 
         static int GetParentIndex(int ndx) => (ndx - 1) >> 1;

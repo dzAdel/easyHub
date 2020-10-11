@@ -29,7 +29,7 @@ namespace TestApp
         //private:
         void SeekableStreamTest()
         {
-            Enumerable.Range(0, SampleFactory.CreateBytes(min: 1).First()).All(_ => SeekTest());
+            Ensure(SeekTest());
 
             bool SeekTest()
             {
@@ -54,6 +54,7 @@ namespace TestApp
 
             byte RandNber() => SampleFactory.CreateBytes().First();
         }
+      
         void LittleEndianTest()
         {
             Func<bool> tst = () =>
@@ -77,7 +78,7 @@ namespace TestApp
                 };
 
 
-            Enumerable.Range(0, SampleFactory.CreateBytes(min: 1).First()).All(_ => tst());
+            Ensure(tst());
         }
 
         void BigEndianTest()
@@ -102,7 +103,7 @@ namespace TestApp
                 }
             };
 
-            Enumerable.Range(0, SampleFactory.CreateBytes(min: 1).First()).All(_ => tst());
+            Ensure(tst());
         }
 
         void MixedByteOrderTest()
@@ -130,7 +131,7 @@ namespace TestApp
                 }
             };
 
-            Enumerable.Range(0, SampleFactory.CreateBytes(min: 1).First()).All(_ => tst());
+            Ensure(tst());
         }
 
         void Clean() => m_stream?.Dispose();

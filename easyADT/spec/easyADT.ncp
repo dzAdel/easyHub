@@ -455,7 +455,7 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
       <Entity type="Class">
         <Name>LinkedHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="360" top="627" />
+        <Location left="360" top="832" />
         <Size width="285" height="264" />
         <Collapsed>False</Collapsed>
         <Member type="Field">readonly BinaryTree&lt;T&gt; m_tree</Member>
@@ -463,28 +463,29 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <Member type="Constructor">public LinkedHeap(Func&lt;T, T, bool&gt; before = null)</Member>
         <Member type="Constructor">public LinkedHeap(Comparison&lt;T&gt; comparison)</Member>
         <Member type="Property">protected override Func&lt;T, T, bool&gt; Befor { get; }</Member>
-        <Member type="Method">protected override T PopItem()</Member>
         <Member type="Method">protected override T PeekItem()</Member>
         <Member type="Method">protected override void AddItem(item T)</Member>
         <Member type="Method">protected override int GetItemCount()</Member>
         <Member type="Method">protected abstract IEnumerable&lt;ValueTuple&gt; LevelOrderTraversal()</Member>
+        <Member type="Method">protected override void RemoveItem(T item)</Member>
+        <Member type="Method">protected override IEnumerator&lt;T&gt; GetItemEnumerator()</Member>
         <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_tree.Root.Item</Text>
-        <Location left="10" top="708" />
+        <Location left="10" top="913" />
         <Size width="133" height="50" />
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_count</Text>
-        <Location left="86" top="797" />
+        <Location left="86" top="1002" />
         <Size width="84" height="50" />
       </Entity>
       <Entity type="Class">
         <Name>FlatHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="822" top="644" />
-        <Size width="311" height="264" />
+        <Location left="822" top="849" />
+        <Size width="311" height="281" />
         <Collapsed>False</Collapsed>
         <Member type="Field">readonly List&lt;T&gt; m_items</Member>
         <Member type="Constructor">public FlatHeap(Func&lt;T, T, bool&gt; before)</Member>
@@ -492,18 +493,19 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <Member type="Constructor">public FlatHeap(int intCapacity, Func&lt;T, T, bool&gt; before = null)</Member>
         <Member type="Constructor">public FlatHeap(int intCapacity, Comparison&lt;T&gt; comparison)</Member>
         <Member type="Property">protected override Func&lt;T, T, bool&gt; Befor { get; }</Member>
-        <Member type="Method">protected override T PopItem()</Member>
         <Member type="Method">protected override T PeekItem()</Member>
         <Member type="Method">protected override void AddItem(item T)</Member>
         <Member type="Method">protected override int GetItemCount()</Member>
         <Member type="Method">protected abstract IEnumerable&lt;ValueTuple&gt; LevelOrderTraversal()</Member>
+        <Member type="Method">protected override void RemoveItem(T item)</Member>
+        <Member type="Method">protected override IEnumerator&lt;T&gt; GetItemEnumerator()</Member>
         <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Class">
         <Name>Heap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="462" top="209" />
-        <Size width="285" height="315" />
+        <Location left="462" top="191" />
+        <Size width="285" height="298" />
         <Collapsed>False</Collapsed>
         <Member type="Property">public int Count { get; }</Member>
         <Member type="Property">public bool IsEmpty { get; }</Member>
@@ -513,17 +515,16 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <Member type="Method">public void Remove(T item)</Member>
         <Member type="Method">public bool Contains(T item)</Member>
         <Member type="Property">protected abstract Func&lt;T, T, bool&gt; Befor { get; }</Member>
-        <Member type="Method">protected abstract T PopItem()</Member>
+        <Member type="Method">protected override T PopItem()</Member>
         <Member type="Method">protected abstract T PeekItem()</Member>
         <Member type="Method">protected abstract void AddItem(item T)</Member>
-        <Member type="Method">public abstract void RemoveItem(T item)</Member>
         <Member type="Method">protected abstract int GetItemCount()</Member>
         <Member type="Method">protected abstract IEnumerable&lt;ValueTuple&gt; LevelOrderTraversal()</Member>
         <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_item.Count</Text>
-        <Location left="674" top="806" />
+        <Location left="670" top="962" />
         <Size width="118" height="50" />
       </Entity>
       <Entity type="Comment">
@@ -531,14 +532,37 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <Location left="173" top="393" />
         <Size width="181" height="50" />
       </Entity>
+      <Entity type="Class">
+        <Name>ExtendedHeap&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="477" top="556" />
+        <Size width="256" height="179" />
+        <Collapsed>False</Collapsed>
+        <Member type="Method">public void Remove(T item)</Member>
+        <Member type="Method">public IEnumerator&lt;T&gt; GetEnumerator()</Member>
+        <Member type="Method">IEnumerator IEnumerable.GetEnumerator()</Member>
+        <Member type="Method">protected override T PopItem()</Member>
+        <Member type="Method">protected abstract void RemoveItem(T item)</Member>
+        <Member type="Method">protected abstract IEnumerator&lt;T&gt; GetItemEnumerator()</Member>
+        <Modifier>Abstract</Modifier>
+      </Entity>
+      <Entity type="Interface">
+        <Name>IEnumerable&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="842" top="383" />
+        <Size width="163" height="61" />
+        <Collapsed>True</Collapsed>
+      </Entity>
     </Entities>
     <Relationships>
       <Relationship type="Dependency" first="5" second="0">
+        <Label>
+        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
           <X>605</X>
-          <Y>184</Y>
+          <Y>166</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>605</X>
@@ -549,8 +573,8 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>335</X>
-          <Y>839</Y>
+          <X>334</X>
+          <Y>1029</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Comment" first="2" second="1">
@@ -558,32 +582,72 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
           <X>334</X>
-          <Y>805</Y>
+          <Y>1010</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Comment" first="6" second="4">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>795</X>
-          <Y>873</Y>
+          <X>797</X>
+          <Y>1064</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Comment" first="7" second="5">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>437</X>
-          <Y>477</Y>
+          <X>435</X>
+          <Y>471</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Generalization" first="1" second="5">
+      <Relationship type="Generalization" first="8" second="5">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>597</X>
+          <Y>531</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>597</X>
+          <Y>514</Y>
+        </BendPoint>
       </Relationship>
-      <Relationship type="Generalization" first="4" second="5">
+      <Relationship type="Generalization" first="1" second="8">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>505</X>
+          <Y>807</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>605</X>
+          <Y>776</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Generalization" first="4" second="8">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>977</X>
+          <Y>824</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>605</X>
+          <Y>760</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Realization" first="8" second="9">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>597</X>
+          <Y>531</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>926</X>
+          <Y>497</Y>
+        </BendPoint>
       </Relationship>
     </Relationships>
   </ProjectItem>
@@ -632,6 +696,103 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <BendPoint relativeToStartShape="False">
           <X>653</X>
           <Y>157</Y>
+        </BendPoint>
+      </Relationship>
+    </Relationships>
+  </ProjectItem>
+  <ProjectItem type="NClass.DiagramEditor.ClassDiagram.Diagram" assembly="NClass.DiagramEditor, Version=2.4.1823.0, Culture=neutral, PublicKeyToken=null">
+    <Name>PriorityQueue</Name>
+    <Language>CSharp</Language>
+    <Entities>
+      <Entity type="Class">
+        <Name>PriorityQueue&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="435" top="266" />
+        <Size width="340" height="264" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">ExtendedHeap&lt;T&gt; m_heap</Member>
+        <Member type="Constructor">public PriorityQueue(Comparison&lt;T&gt; comparison = null)</Member>
+        <Member type="Constructor">public PriorityQueue(int capacity, Comparison&lt;T&gt; comparison = null)</Member>
+        <Member type="Constructor">public PriorityQueue(QueueImpl imp, Comparison&lt;T&gt; comparison = nullr)</Member>
+        <Member type="Property">public int Count { get; }</Member>
+        <Member type="Property">public bool IsEmpty { get; }</Member>
+        <Member type="Method">public void Enqueue(T item)</Member>
+        <Member type="Method">public override T Peek()</Member>
+        <Member type="Method">public T Dequeue()</Member>
+        <Member type="Method">public void Remove(T item)</Member>
+        <Member type="Method">public bool Contains(T item)</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Interface">
+        <Name>IProprityQueue&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="435" top="53" />
+        <Size width="162" height="131" />
+        <Collapsed>False</Collapsed>
+        <Member type="Property">int Count { get; }</Member>
+        <Member type="Property">bool IsEmpty { get; }</Member>
+        <Member type="Method">T Peek()</Member>
+        <Member type="Method">T Dequeue()</Member>
+      </Entity>
+      <Entity type="Comment">
+        <Text>m_heap is LinkedHeap&lt;T&gt;</Text>
+        <Location left="134" top="311" />
+        <Size width="167" height="50" />
+      </Entity>
+      <Entity type="Comment">
+        <Text>m_heap is FlatHeap&lt;T&gt;</Text>
+        <Location left="134" top="386" />
+        <Size width="160" height="50" />
+      </Entity>
+      <Entity type="Enum">
+        <Name>QueueImpl</Name>
+        <Access>Public</Access>
+        <Location left="914" top="284" />
+        <Size width="162" height="95" />
+        <Collapsed>False</Collapsed>
+        <Value>Flat</Value>
+        <Value>Linked</Value>
+      </Entity>
+    </Entities>
+    <Relationships>
+      <Relationship type="Realization" first="0" second="1">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+      </Relationship>
+      <Relationship type="Comment" first="2" second="0">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>327</X>
+          <Y>342</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>409</X>
+          <Y>360</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Comment" first="3" second="0">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>319</X>
+          <Y>411</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>408</X>
+          <Y>374</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Nesting" first="0" second="4">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>800</X>
+          <Y>319</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>886</X>
+          <Y>319</Y>
         </BendPoint>
       </Relationship>
     </Relationships>
