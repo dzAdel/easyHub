@@ -1,6 +1,7 @@
 ﻿using easyLib.ADT.Heaps;
 using easyLib.Test;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace TestApp.ADT
@@ -49,7 +50,7 @@ namespace TestApp.ADT
                 lastItem = item;
             }
 
-            
+
             heap = CreateFlatHeap(RandCount, (a, b) => comp(b, a));
             lastItem = int.MaxValue;
 
@@ -61,7 +62,7 @@ namespace TestApp.ADT
                 lastItem = item;
             }
 
-            
+
             Func<int, int, bool> before = (a, b) => a < b;
             heap = CreateFlatHeap(RandCount, before);
             lastItem = int.MinValue;
@@ -74,7 +75,7 @@ namespace TestApp.ADT
                 lastItem = item;
             }
 
-            
+
             heap = CreateFlatHeap(RandCount, (a, b) => before(b, a));
             lastItem = int.MaxValue;
 
@@ -98,7 +99,7 @@ namespace TestApp.ADT
             heap = CreateFlatHeap(RandCount + 2);
             int n = heap.Count / 2;
 
-            for(int i = 0; i < n;++i)
+            for (int i = 0; i < n; ++i)
             {
                 heap.Add(SampleFactory.NextInt);
                 heap.Pop();
@@ -124,6 +125,28 @@ namespace TestApp.ADT
 
             data = SampleFactory.CreateInts(limit: 0).Take(RandCount).ToArray();
             Ensure(data.All(d => !heap.Contains(d)));
+
+            heap = new FlatHeap<int>();
+            data = SampleFactory.CreateInts(0, 100).Take(RandCount + 2).ToArray();
+
+            foreach (var datum in data)
+                heap.Add(datum);
+
+
+            var indices = SampleFactory.CreateInts(0, data.Length).Distinct().Take(data.Length / 2).ToArray();
+
+            foreach (var ndx in indices)
+                heap.Remove(data[ndx]);
+
+            lastItem = int.MinValue;
+
+            while (!heap.IsEmpty)
+            {
+                var item = heap.Peek();
+                Ensure(heap.Pop() == item);
+                Ensure(lastItem <= item);
+                lastItem = item;
+            }
         }
 
         void LinkedHeapTest()
@@ -225,6 +248,29 @@ namespace TestApp.ADT
 
             data = SampleFactory.CreateInts(limit: 0).Take(RandCount).ToArray();
             Ensure(data.All(d => !heap.Contains(d)));
+
+            heap = new LinkedHeap<int>();
+            data = SampleFactory.CreateInts(0, 100).Take(RandCount + 2).ToArray();
+
+            foreach (var datum in data)
+                heap.Add(datum);
+
+
+            var indices = SampleFactory.CreateInts(0, data.Length).Distinct().Take(data.Length / 2).ToArray();
+
+            foreach (var ndx in indices)
+                heap.Remove(data[ndx]);
+
+            lastItem = int.MinValue;
+
+            while (!heap.IsEmpty)
+            {
+                var item = heap.Peek();
+                Ensure(heap.Pop() == item);
+                Ensure(lastItem <= item);
+                lastItem = item;
+            }
+
         }
 
 

@@ -6,7 +6,7 @@ using static easyLib.DebugHelper;
 
 namespace easyLib.ADT.Heaps
 {
-    public sealed class FlatHeap<T> : Heap<T>
+    public sealed class FlatHeap<T> : ExtendedHeap<T>
     {
         readonly List<T> m_items;
         
@@ -16,12 +16,15 @@ namespace easyLib.ADT.Heaps
             Before = before ?? ((a, b) => Comparer<T>.Default.Compare(a, b) < 0);
         }
 
+        
         public FlatHeap(Comparison<T> comparison)
         {
             Assert(comparison != null);
 
             m_items = new List<T>();
             Before = (a, b) => comparison(a, b) < 0;
+
+            Assert(ClassInvariant);
         }
 
         public FlatHeap(int intCapacity, Func<T, T, bool> before = null)
@@ -30,6 +33,8 @@ namespace easyLib.ADT.Heaps
 
             m_items = new List<T>(intCapacity);
             Before = before ?? ((a, b) => Comparer<T>.Default.Compare(a, b) < 0);
+
+            Assert(ClassInvariant);
         }
 
         public FlatHeap(int intCapacity, Comparison<T> comparison)
@@ -39,6 +44,8 @@ namespace easyLib.ADT.Heaps
 
             Before = (a, b) => comparison(a, b) < 0;
             m_items = new List<T>(intCapacity);
+
+            Assert(ClassInvariant);
         }
 
 
@@ -49,55 +56,25 @@ namespace easyLib.ADT.Heaps
 
         protected override void AddItem(T item)
         {
-            m_items.Add(item);
+            m_items.Add(item);            
+            BubbleUp(m_items.Count - 1);
+        }        
 
-            int ndx = m_items.Count - 1;
-
-            while (ndx != 0)
-            {
-                int ndxParent = GetParentIndex(ndx);
-
-                if (!Before(m_items[ndx], m_items[ndxParent]))
-                    break;
-
-                (m_items[ndx], m_items[ndxParent]) = (m_items[ndxParent], m_items[ndx]);
-                ndx = ndxParent;
-            }
-        }
-
-        protected override T PopItem()
+        protected override void RemoveItem(T item)
         {
-            T result = m_items[0];
+            int ndx = Same(m_items[0], item) ? 0 : LevelOrderTraversal().
+                Select((p, Index) => (p.Value, Index)).
+                First(p => Same(p.Value, item)).Index;
+
             int ndxLast = m_items.Count - 1;
-            m_items[0] = m_items[ndxLast];
-            m_items[ndxLast] = default; // it is done in List<>.RemoveAt but the doc d'ont tel any thing about it
-            m_items.RemoveAt(ndxLast--);
+            m_items[ndx] = m_items[ndxLast];            
+            m_items.RemoveAt(ndxLast);
 
-            int ndx = 0;
-
-            if (ndx < ndxLast)
-                while (true)
-                {
-                    int ndxLeft = GetLeftChildIndex(ndx);
-
-                    if (ndxLast < ndxLeft)
-                        break;
-                    else
-                    {
-                        int ndxRight = GetRightChildIndex(ndx);
-                        int ndxChild = ndxLast < ndxRight ? ndxLeft :
-                            Before(m_items[ndxLeft], m_items[ndxRight]) ? ndxLeft : ndxRight;
-
-                        if (!Before(m_items[ndxChild], m_items[ndx]))
-                            break;
-
-                        (m_items[ndx], m_items[ndxChild]) = (m_items[ndxChild], m_items[ndx]);
-                        ndx = ndxChild;
-                    }
-
-                }
-
-            return result;        
+            if (ndx != ndxLast)            
+                if (ndx != 0 && Before(m_items[ndx], m_items[GetParentIndex(ndx)]))
+                    BubbleUp(ndx);
+                else
+                    BubbleDown(ndx);            
         }
 
         protected override IEnumerable<(T Value, int Level)> LevelOrderTraversal()
@@ -129,10 +106,54 @@ namespace easyLib.ADT.Heaps
         }
 
 
-        //private:
+        //private:        
+        void BubbleUp(int index)
+        {
+            while (index != 0)
+            {
+                int ndxParent = GetParentIndex(index);
+
+                if (!Before(m_items[index], m_items[ndxParent]))
+                    break;
+
+                (m_items[index], m_items[ndxParent]) = (m_items[ndxParent], m_items[index]);
+                index = ndxParent;
+
+            } 
+        }
+
+        void BubbleDown(int index)
+        {
+            int ndxLast = m_items.Count - 1;
+            
+                while (true)
+                {
+                    int ndxLeft = GetLeftChildIndex(index);
+
+                    if (ndxLast < ndxLeft)
+                        break;
+                    else
+                    {
+                        int ndxRight = GetRightChildIndex(index);
+                        int ndxChild = ndxLast < ndxRight ? ndxLeft :
+                            Before(m_items[ndxLeft], m_items[ndxRight]) ? ndxLeft : ndxRight;
+
+                        if (!Before(m_items[ndxChild], m_items[index]))
+                            break;
+
+                        (m_items[index], m_items[ndxChild]) = (m_items[ndxChild], m_items[index]);
+                        index = ndxChild;
+                    }
+
+                }
+        }
+
         static int GetParentIndex(int ndx) => (ndx - 1) >> 1;
         static int GetLeftChildIndex(int ndx) => 1 + (ndx << 1);
         static int GetRightChildIndex(int ndx) => 2 + (ndx << 1);
 
+        bool ClassInvariant => IsEmpty || m_items.Skip(1).
+            Select((item, ndx) => (item, ndx)).
+            All(p => !Before(p.item, m_items[GetParentIndex(p.ndx)]));
     }
 }

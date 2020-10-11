@@ -23,7 +23,7 @@ namespace easyLib.ADT.Heaps
         public bool IsEmpty => GetItemCount() == 0;
 
         public void Add(T item) => AddItem(item);
-        
+       
         public T Peek() 
         {
             Assert(!IsEmpty);
@@ -71,11 +71,13 @@ namespace easyLib.ADT.Heaps
 
 
         //protected:
-        protected abstract Func<T, T, bool> Before { get; }
+        protected abstract Func<T, T, bool> Before { get; }        
         protected abstract int GetItemCount();
         protected abstract T PeekItem();
         protected abstract T PopItem();
-        protected abstract void AddItem(T item);
+        protected abstract void AddItem(T item);        
         protected abstract IEnumerable<(T Value, int Level)> LevelOrderTraversal();
+
+        protected bool Same(T a, T b) => !Before(a, b) && !Before(b, a);
     }
 }

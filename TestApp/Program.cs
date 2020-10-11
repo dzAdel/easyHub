@@ -13,8 +13,8 @@ namespace TestApp
         {
             var app = new Program();
 
-            app.EasyLibTest();
-            app.EasyLibIOTest();
+            //app.EasyLibTest();
+            //app.EasyLibIOTest();
             app.EasyLibADTTreesTest();
 
             app.m_mgr.Execute(new Random().Next(1, byte.MaxValue));
@@ -34,10 +34,10 @@ namespace TestApp
 
         void EasyLibADTTreesTest()
         {
-            m_mgr.AddTest(new BasicTreeNodeTest());
-            m_mgr.AddTest(new BasicTreeTest());
-            m_mgr.AddTest(new BinaryTreeNodeTest());
-            m_mgr.AddTest(new BinaryTreeTest());
+            //m_mgr.AddTest(new BasicTreeNodeTest());
+            //m_mgr.AddTest(new BasicTreeTest());
+            //m_mgr.AddTest(new BinaryTreeNodeTest());
+            //m_mgr.AddTest(new BinaryTreeTest());
             m_mgr.AddTest(new HeapTest());
         }
     }

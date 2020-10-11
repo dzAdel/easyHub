@@ -7,7 +7,7 @@ using static easyLib.DebugHelper;
 
 namespace easyLib.ADT.Heaps
 {
-    public sealed class LinkedHeap<T> : Heap<T>
+    public sealed class LinkedHeap<T> : ExtendedHeap<T>
     {
         readonly BinaryTree<T> m_tree = new BinaryTree<T>();        
         BinaryTree<T>.Node m_tail;
@@ -33,51 +33,51 @@ namespace easyLib.ADT.Heaps
 
         protected override T PeekItem() => m_tree.Root.Item;
 
-        protected override T PopItem()
-        {
-            T result = m_tree.Root.Item;
+        //protected override T PopItem()
+        //{
+        //    T result = m_tree.Root.Item;
 
-            if (--m_count != 0)
-            {
-                BinaryTree<T>.Node node = m_tail;
+        //    if (--m_count != 0)
+        //    {
+        //        BinaryTree<T>.Node node = m_tail;
 
-                Assert(m_tail != m_tree.Root);
-                m_tail = Predecessor(m_tail);
+        //        Assert(m_tail != m_tree.Root);
+        //        m_tail = Predecessor(m_tail);
 
-                m_tree.Root.Item = node.Item;
+        //        m_tree.Root.Item = node.Item;
 
-                if (node.Parent.RightChild == node)
-                    node.Parent.RightChild = null;
-                else
-                    node.Parent.LeftChild = null;
+        //        if (node.Parent.RightChild == node)
+        //            node.Parent.RightChild = null;
+        //        else
+        //            node.Parent.LeftChild = null;
 
-                Assert(node.IsLeaf && (node.Parent == null));
-
-
-                node = m_tree.Root;
-
-                while (!node.IsLeaf)
-                {
-                    BinaryTree<T>.Node child = node.RightChild == null ? node.LeftChild :
-                        (Before(node.LeftChild.Item, node.RightChild.Item) ? node.LeftChild : node.RightChild);
-
-                    if (!Before(child.Item, node.Item))
-                        break;
-
-                    (node.Item, child.Item) = (child.Item, node.Item);
-                    node = child;
-                }
-
-                Assert(m_count <= 1 || !Before(m_tree.Root.LeftChild.Item, m_tree.Root.Item));
-                Assert(m_count <= 2 || !Before(m_tree.Root.RightChild.Item, m_tree.Root.Item));
-            }
-            else
-                m_tail = m_tree.Root = null;
+        //        Assert(node.IsLeaf && (node.Parent == null));
 
 
-            Assert(ClassInvariant);
-            return result;
-        }
+        //        node = m_tree.Root;
+
+        //        while (!node.IsLeaf)
+        //        {
+        //            BinaryTree<T>.Node child = node.RightChild == null ? node.LeftChild :
+        //                (Before(node.LeftChild.Item, node.RightChild.Item) ? node.LeftChild : node.RightChild);
+
+        //            if (!Before(child.Item, node.Item))
+        //                break;
+
+        //            (node.Item, child.Item) = (child.Item, node.Item);
+        //            node = child;
+        //        }
+
+        //        Assert(m_count <= 1 || !Before(m_tree.Root.LeftChild.Item, m_tree.Root.Item));
+        //        Assert(m_count <= 2 || !Before(m_tree.Root.RightChild.Item, m_tree.Root.Item));
+        //    }
+        //    else
+        //        m_tail = m_tree.Root = null;
+
+
+        //    Assert(ClassInvariant);
+        //    return result;
+        //}
 
         protected override void AddItem(T item)
         {
@@ -88,16 +88,17 @@ namespace easyLib.ADT.Heaps
                 var node = new BinaryTree<T>.Node(item);
                 SetSuccessor(m_tail, node);
                 m_tail = node;
+                BubbleUp(node);
 
-                do
-                {
-                    if (!Before(node.Item, node.Parent.Item))
-                        break;
+            //    do
+            //    {
+            //        if (!Before(node.Item, node.Parent.Item))
+            //            break;
 
-                    (node.Item, node.Parent.Item) = (node.Parent.Item, node.Item);
-                    node = node.Parent;
+            //        (node.Item, node.Parent.Item) = (node.Parent.Item, node.Item);
+            //        node = node.Parent;
 
-                } while (node != m_tree.Root);
+            //    } while (node != m_tree.Root);
             }
 
             ++m_count;
@@ -105,40 +106,44 @@ namespace easyLib.ADT.Heaps
             Assert(ClassInvariant);
         }
 
-        //protected override bool ContainsItem(T item)
-        //{
-        //    int lvlLast = -1;
-        //    bool lookNextLevel = true;
+        protected override void RemoveItem(T item)
+        {
+            BinaryTree<T>.Node node = Same(m_tree.Root.Item, item) ? m_tree.Root :
+                m_tree.Enumerate(TraversalOrder.BreadthFirst).First(nd => Same(nd.Item, item));
 
-        //    foreach (var (node, level) in m_tree.LevelOrderTraversal())
-        //    {
-        //        bool itemAfter = Before(node.Item, item);
+            if (--m_count != 0)
+            {
+                BinaryTree<T>.Node tmpNode = m_tail;                
+                m_tail = Predecessor(m_tail);                
 
-        //        if (!Before(item, node.Item) && !itemAfter)
-        //            return true;
+                if (tmpNode.Parent.RightChild == tmpNode)
+                    tmpNode.Parent.RightChild = null;
+                else
+                    tmpNode.Parent.LeftChild = null;
 
-        //        if (lvlLast != level)
-        //        {
-        //            if (!lookNextLevel)
-        //                break;
+                Assert(tmpNode.IsLeaf && (tmpNode.Parent == null));
 
-        //            lookNextLevel = false;
-        //            lvlLast = level;
-        //        }
+                if (node != tmpNode)
+                {
+                    node.Item = tmpNode.Item;
 
-        //        if (itemAfter)
-        //            lookNextLevel = true;
-        //    }
-
-        //    return false;
-        //}
-
+                    if (node.Parent != null && Before(node.Item, node.Parent.Item))
+                        BubbleUp(node);
+                    else if (!node.IsLeaf)
+                        BubbleDown(node);
+                }
+            }
+            else
+                m_tail = m_tree.Root = null;
+                
+            Assert(ClassInvariant);        
+        }
 
         protected override IEnumerable<(T Value, int Level)> LevelOrderTraversal() =>
             m_tree.LevelOrderTraversal().Select(p => (p.node.Item, p.level));
 
 
-        //private:
+        //private:        
         BinaryTree<T>.Node Predecessor(BinaryTree<T>.Node node)
         {
             BinaryTree<T>.Node p = node.Parent;
@@ -208,7 +213,39 @@ namespace easyLib.ADT.Heaps
             node.LeftChild = successor;
         }
 
+        void BubbleDown(BinaryTree<T>.Node node)
+        {
+            do
+            {
+                BinaryTree<T>.Node child = node.RightChild == null ? node.LeftChild :
+                    (Before(node.LeftChild.Item, node.RightChild.Item) ? node.LeftChild : node.RightChild);
+
+                if (!Before(child.Item, node.Item))
+                    break;
+
+                (node.Item, child.Item) = (child.Item, node.Item);
+                node = child;
+            } while (!node.IsLeaf);
+
+        }
+
+        void BubbleUp(BinaryTree<T>.Node node)
+        {
+            do
+            {
+                if (!Before(node.Item, node.Parent.Item))
+                    break;
+
+                (node.Item, node.Parent.Item) = (node.Parent.Item, node.Item);
+                node = node.Parent;
+
+            } while (node != m_tree.Root);
+        }
+
         bool ClassInvariant => m_count == m_tree.GetCount() &&
-            m_tree.IsEmpty || m_tree.IsComplete();
+            m_tree.IsEmpty || m_tree.IsComplete() &&
+            m_tree.IsEmpty || m_tree.Enumerate(TraversalOrder.PreOrder).
+                Skip(1).
+                All(nd => !Before(nd.Item, nd.Parent.Item));
     }
 }

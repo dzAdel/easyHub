@@ -455,7 +455,7 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
       <Entity type="Class">
         <Name>LinkedHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="435" top="558" />
+        <Location left="360" top="627" />
         <Size width="285" height="264" />
         <Collapsed>False</Collapsed>
         <Member type="Field">readonly BinaryTree&lt;T&gt; m_tree</Member>
@@ -472,18 +472,18 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_tree.Root.Item</Text>
-        <Location left="221" top="537" />
+        <Location left="10" top="708" />
         <Size width="133" height="50" />
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_count</Text>
-        <Location left="209" top="611" />
+        <Location left="86" top="797" />
         <Size width="84" height="50" />
       </Entity>
       <Entity type="Class">
         <Name>FlatHeap&lt;T&gt;</Name>
         <Access>Public</Access>
-        <Location left="948" top="558" />
+        <Location left="822" top="644" />
         <Size width="311" height="264" />
         <Collapsed>False</Collapsed>
         <Member type="Field">readonly List&lt;T&gt; m_items</Member>
@@ -503,25 +503,27 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <Name>Heap&lt;T&gt;</Name>
         <Access>Public</Access>
         <Location left="462" top="209" />
-        <Size width="285" height="281" />
+        <Size width="285" height="315" />
         <Collapsed>False</Collapsed>
         <Member type="Property">public int Count { get; }</Member>
         <Member type="Property">public bool IsEmpty { get; }</Member>
         <Member type="Method">public abstract T Pop()</Member>
         <Member type="Method">public abstract T Peek()</Member>
         <Member type="Method">public abstract void Add(T iterm)</Member>
+        <Member type="Method">public void Remove(T item)</Member>
         <Member type="Method">public bool Contains(T item)</Member>
         <Member type="Property">protected abstract Func&lt;T, T, bool&gt; Befor { get; }</Member>
         <Member type="Method">protected abstract T PopItem()</Member>
         <Member type="Method">protected abstract T PeekItem()</Member>
         <Member type="Method">protected abstract void AddItem(item T)</Member>
+        <Member type="Method">public abstract void RemoveItem(T item)</Member>
         <Member type="Method">protected abstract int GetItemCount()</Member>
         <Member type="Method">protected abstract IEnumerable&lt;ValueTuple&gt; LevelOrderTraversal()</Member>
         <Modifier>Abstract</Modifier>
       </Entity>
       <Entity type="Comment">
         <Text>=&gt; m_item.Count</Text>
-        <Location left="765" top="690" />
+        <Location left="674" top="806" />
         <Size width="118" height="50" />
       </Entity>
       <Entity type="Comment">
@@ -532,8 +534,6 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
     </Entities>
     <Relationships>
       <Relationship type="Dependency" first="5" second="0">
-        <Label>
-        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -545,48 +545,28 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
           <Y>170</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Generalization" first="1" second="5">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-        <BendPoint relativeToStartShape="True">
-          <X>590</X>
-          <Y>533</Y>
-        </BendPoint>
-        <BendPoint relativeToStartShape="False">
-          <X>590</X>
-          <Y>515</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Generalization" first="4" second="5">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-        <BendPoint relativeToStartShape="True">
-          <X>1096</X>
-          <Y>533</Y>
-        </BendPoint>
-      </Relationship>
       <Relationship type="Comment" first="3" second="1">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>410</X>
-          <Y>770</Y>
+          <X>335</X>
+          <Y>839</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Comment" first="2" second="1">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>409</X>
-          <Y>736</Y>
+          <X>334</X>
+          <Y>805</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Comment" first="6" second="4">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="False">
-          <X>921</X>
-          <Y>787</Y>
+          <X>795</X>
+          <Y>873</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Comment" first="7" second="5">
@@ -596,6 +576,14 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
           <X>437</X>
           <Y>477</Y>
         </BendPoint>
+      </Relationship>
+      <Relationship type="Generalization" first="1" second="5">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+      </Relationship>
+      <Relationship type="Generalization" first="4" second="5">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
       </Relationship>
     </Relationships>
   </ProjectItem>
