@@ -8,8 +8,7 @@ namespace easyLib.ADT.Trees
     partial class BinaryTree<T>
     {
         public sealed class Node : IBinaryTreeNode<T>
-        {
-            Node m_parent;
+        {            
             Node m_leftChild;
             Node m_rightChild;
 

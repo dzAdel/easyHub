@@ -28,10 +28,31 @@ namespace TestApp.ADT
             SubTreesTest();
             MergeTest();
             PathLengthTest();
+            CommonAncestorTest();
 
         }
 
         //private:
+        void CommonAncestorTest()
+        {
+            BasicTree<int> tree;
+
+            do
+                tree = TreeFactory.CreateBasicTree<int>();
+            while (tree.GetCount() < 2);
+
+            var indices = SampleFactory.CreateInts(0, tree.GetCount()).Take(2).ToArray();
+
+            var node0 = tree.Nodes.ElementAt(indices[0]);
+            var node1 = tree.Nodes.ElementAt(indices[1]);
+
+            var fca = tree.GetFirstCommonAncestor(node0, node1);
+
+            Ensure(fca.IsAncestorOf(node0));
+            Ensure(fca.IsAncestorOf(node1));
+            Ensure(node0.GetPath(fca).Intersect(node1.GetPath(fca)).SequenceEqual(Enumerable.Repeat(fca, 1)));
+        }
+
         void MergeTest()
         {
             BasicTree<int> tree;
@@ -73,7 +94,7 @@ namespace TestApp.ADT
 
             Ensure(seq.All(p => p.Depth == p.STDepth + 1));
 
-            Ensure(tree.SubTrees().All(t => !t.Contains(tree.Root)));
+            Ensure(tree.SubTrees().All(t => !t.ContainsNode(tree.Root)));
 
             var seq1 = from t in tree.SubTrees()
                        from node in t.Nodes
@@ -246,7 +267,7 @@ namespace TestApp.ADT
             Ensure(tree.Enumerate(TraversalOrder.PreOrder).Where(nd => nd.IsLeaf).SequenceEqual(tree.Leaves));
             Ensure(tree.Enumerate(TraversalOrder.PreOrder).SequenceEqual(tree.Nodes));
             Ensure(tree.Nodes.Count() == tree.GetCount());
-            Ensure(tree.Nodes.All(nd => tree.Contains(nd)));
+            Ensure(tree.Nodes.All(nd => tree.ContainsNode(nd)));
         }
 
         void ConstructionTest()
@@ -268,7 +289,7 @@ namespace TestApp.ADT
             tree = new BasicTree<int>(node);
             Ensure(tree.Root == node);
             Ensure(tree.Root.Item == datum);
-            Ensure(tree.Contains(node));
+            Ensure(tree.ContainsNode(node));
             Ensure(tree.GetHeight() == 0);
             Ensure(tree.GetCount() == 1);
 
@@ -279,7 +300,7 @@ namespace TestApp.ADT
             Ensure(tree.Root.Item == datum);
             Ensure(tree.Root.Children.Select(nd => nd.Item).SequenceEqual(data));
             Ensure(tree.GetCount() == data.Length + 1);
-            Ensure(tree.Root.Children.All(nd => tree.Contains(nd)));
+            Ensure(tree.Root.Children.All(nd => tree.ContainsNode(nd)));
             Ensure(tree.GetHeight() == 1);
 
             int n = 0;

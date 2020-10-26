@@ -16,7 +16,7 @@ namespace easyLib.ADT.Trees
     }
     //-------------------------------------
 
-    public interface ITree<out T, out N> : IEnumerable<T>
+    public interface ITree<out T, N> : IEnumerable<T>
         where N : ITreeNode<T>
     {
         N Root { get; }
@@ -24,7 +24,8 @@ namespace easyLib.ADT.Trees
         IEnumerable<N> Leaves { get; }
         bool IsEmpty { get; }
         IEnumerable<N> Enumerate(TraversalOrder order);
-        int GetCount();        
+        int GetCount();
+        IEnumerable<N> GetPath(N node);
     }
     //-------------------------------------------------
 
@@ -186,7 +187,7 @@ namespace easyLib.ADT.Trees
             }
         }
 
-        public static bool Contains<T, N>(this ITree<T, N> tree, ITreeNode<T> node)
+        public static bool ContainsNode<T, N>(this ITree<T, N> tree, ITreeNode<T> node)
             where N : ITreeNode<T>
         {
             Assert(tree != null);
@@ -194,14 +195,16 @@ namespace easyLib.ADT.Trees
 
             ITreeNode<T> root = tree.Root;
 
-            do
+            if (root == null)
+                return false;
+
+            while (node != null)
             {
                 if (node == root)
                     return true;
 
                 node = node.Parent;
-
-            } while (node != null);
+            } 
 
             return false;
         }
@@ -211,9 +214,39 @@ namespace easyLib.ADT.Trees
         {
             Assert(tree != null);
             Assert(node != null);
-            Assert(tree.Contains(node));
+            Assert(tree.ContainsNode(node));
 
             return node.GetPath(tree.Root).Count() - 1;
+        }
+
+        public static ITreeNode<T> GetFirstCommonAncestor<T, N>(this ITree<T, N> tree, ITreeNode<T> node0, ITreeNode<T> node1)
+            where N: ITreeNode<T>
+        {
+            Assert(tree != null);
+            Assert(node0 != null);
+            Assert(node1 != null);
+            Assert(tree.ContainsNode(node0));
+            Assert(tree.ContainsNode(node1));
+
+            int depth0 = tree.GetDepth(node0);
+            int depth1 = tree.GetDepth(node1);
+            int depth = Math.Min(depth0, depth1);
+
+            if (depth < depth0)
+                do
+                    node0 = node0.Parent;
+                while (depth < --depth0);
+            else
+                while (depth < depth1--)
+                    node1 = node1.Parent;
+
+            while(node0!= node1)
+            {
+                node0 = node0.Parent;
+                node1 = node1.Parent;
+            }
+
+            return node0;
         }
 
 

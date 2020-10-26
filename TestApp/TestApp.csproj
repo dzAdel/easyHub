@@ -14,6 +14,7 @@
   <ItemGroup>
     <Compile Include="ADT\BasicTreeNodeTest.cs" />
     <Compile Include="ADT\BasicTreeTest.cs" />
+    <Compile Include="ADT\BinarySearchTreeTest.cs" />
     <Compile Include="ADT\BinaryTreeNodeTest.cs" />
     <Compile Include="ADT\BinaryTreeTest.cs" />
     <Compile Include="ADT\HeapTest.cs" />

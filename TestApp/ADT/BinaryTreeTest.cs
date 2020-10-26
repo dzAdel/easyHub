@@ -310,8 +310,8 @@ namespace TestApp.ADT
             Ensure(subTrees[1]?.Root == bt.Root.RightChild);
             Ensure(subTrees[0].All(nd => bt.Contains(nd)));
             Ensure(subTrees[1].All(nd => bt.Contains(nd)));
-            Ensure(!subTrees[0].Contains(bt.Root));
-            Ensure(!subTrees[1].Contains(bt.Root));
+            Ensure(!subTrees[0].ContainsNode(bt.Root));
+            Ensure(!subTrees[1].ContainsNode(bt.Root));
 
             var btItems = bt.ToArray();
 

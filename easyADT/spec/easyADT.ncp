@@ -556,8 +556,6 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
     </Entities>
     <Relationships>
       <Relationship type="Dependency" first="5" second="0">
-        <Label>
-        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -793,6 +791,88 @@ N = BinaryTree&lt;T&gt;.Node&gt;</Text>
         <BendPoint relativeToStartShape="False">
           <X>886</X>
           <Y>319</Y>
+        </BendPoint>
+      </Relationship>
+    </Relationships>
+  </ProjectItem>
+  <ProjectItem type="NClass.DiagramEditor.ClassDiagram.Diagram" assembly="NClass.DiagramEditor, Version=2.4.1823.0, Culture=neutral, PublicKeyToken=null">
+    <Name>Trees.BinarySearchTree</Name>
+    <Language>CSharp</Language>
+    <Entities>
+      <Entity type="Interface">
+        <Name>IBinarySearchTree&lt;T, K&gt;</Name>
+        <Access>Public</Access>
+        <Location left="730" top="137" />
+        <Size width="162" height="216" />
+        <Collapsed>False</Collapsed>
+        <Member type="Property">int Count { get; }</Member>
+        <Member type="Method">bool Contains(T items)</Member>
+      </Entity>
+      <Entity type="Class">
+        <Name>BinarySearchTree&lt;T, K&gt;</Name>
+        <Access>Public</Access>
+        <Location left="614" top="430" />
+        <Size width="412" height="145" />
+        <Collapsed>False</Collapsed>
+        <Member type="Constructor">protected BinarySearchTree(Func&lt;T,K&gt; keyExtractor, Comparison&lt;T&gt; keyComparer = null)</Member>
+        <Member type="Method">public void Add(T item)</Member>
+        <Member type="Method">public void Remove(T item)</Member>
+        <Member type="Method">public bool Contains(T item)</Member>
+        <Modifier>Abstract</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>Node&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="69" top="410" />
+        <Size width="162" height="216" />
+        <Collapsed>False</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Interface">
+        <Name>IBinaryTree&lt;T, N&gt;</Name>
+        <Access>Public</Access>
+        <Location left="716" top="23" />
+        <Size width="163" height="61" />
+        <Collapsed>True</Collapsed>
+      </Entity>
+      <Entity type="Interface">
+        <Name>IBSTNode&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="120" top="125" />
+        <Size width="162" height="216" />
+        <Collapsed>False</Collapsed>
+      </Entity>
+      <Entity type="Interface">
+        <Name>IBinaryTreeNode&lt;T&gt;</Name>
+        <Access>Public</Access>
+        <Location left="120" top="23" />
+        <Size width="163" height="61" />
+        <Collapsed>True</Collapsed>
+      </Entity>
+    </Entities>
+    <Relationships>
+      <Relationship type="Generalization" first="4" second="5">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>200</X>
+          <Y>100</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>200</X>
+          <Y>93</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Generalization" first="0" second="3">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>804</X>
+          <Y>112</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>804</X>
+          <Y>93</Y>
         </BendPoint>
       </Relationship>
     </Relationships>

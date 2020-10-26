@@ -12,8 +12,19 @@ namespace easyLib.Test
         static Random m_rand = new Random();
 
         public static byte NextByte => CreateBytes().First();
+        public static sbyte NextSByte => CreateSBytes().First();
+        public static short NextShort => CreateShorts().First();
+        public static ushort NextUShort => CreateUShorts().First();
         public static bool NextBool => CreateBools().First();
         public static int NextInt => CreateInts().First();
+        public static uint NextUInt => CreateUInts().First();
+        public static long NextLong => CreateLongs().First();
+        public static ulong NextULong => CreateULongs().First();
+        public static char NextChar => CreateChars().First();
+        public static string NextString => CreateStrings().First();
+        public static decimal NextDecimal => CreateDecimals().First();
+        public static float NextFloat => CreateFloats().First();
+        public static double NextDouble => CreateDoubles().First();
 
         public static IEnumerable<byte> CreateBytes(byte min = byte.MinValue, byte limit = byte.MaxValue)
         {
@@ -117,7 +128,7 @@ namespace easyLib.Test
             return CreateUShorts(min, limit).Select(us => (char)us);
         }
 
-        public static IEnumerable<string> CreateStrings(int maxLen = byte.MaxValue)
+        public static IEnumerable<string> CreateStrings(char min, char limit, int maxLen = byte.MaxValue)
         {
             Assert(maxLen >= 0);
 
@@ -129,10 +140,17 @@ namespace easyLib.Test
             while (true)
             {
                 int len = CreateInts(0, maxLen).First();
-                char[] chars = CreateChars().Take(len).ToArray();
+                char[] chars = CreateChars(min, limit).Take(len).ToArray();
 
                 yield return new string(chars);
             }
+        }
+
+        public static IEnumerable<string> CreateStrings(int maxLen = byte.MaxValue)
+        {
+            Assert(maxLen >= 0);
+
+            return CreateStrings(char.MinValue, '\ud800', maxLen);
         }
 
         public static IEnumerable<decimal> CreateDecimals(decimal min = decimal.MinValue / 10, decimal limit = decimal.MaxValue / 10)

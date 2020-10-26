@@ -8,12 +8,9 @@ using static easyLib.DebugHelper;
 
 namespace easyLib.ADT.Trees
 {
-    public interface IBinaryTree<out TItem, out TNode> : ITree<TItem, TNode>
+    public interface IBinaryTree<out TItem, TNode> : ITree<TItem, TNode>
         where TNode : IBinaryTreeNode<TItem>
-    {
-        bool IsProper();
-        bool IsComplete();
-    }
+    { }
     //---------------------------------------------------------------------
 
     public sealed partial class BinaryTree<T> : IBinaryTree<T, BinaryTree<T>.Node>
@@ -32,33 +29,21 @@ namespace easyLib.ADT.Trees
 
         public bool IsEmpty => Root == null;
 
-        public IEnumerable<Node> Nodes => Enumerate(TraversalOrder.PostOrder);
+        public IEnumerable<Node> Nodes => Enumerate(TraversalOrder.PreOrder);
 
         public IEnumerable<Node> Leaves => Nodes.Where(node => node.IsLeaf);
 
         public int GetCount() => Root?.GetDescendantCount() ?? 0;
-
-        public bool IsProper()
-        {
-            Assert(!IsEmpty);
-            return BinaryTrees.IsProper(this);
-        }
-
-        public bool IsComplete()
-        {
-            Assert(!IsEmpty);
-            return BinaryTrees.IsComplete(this);
-        }
-
+        
         public IEnumerable<Node> GetPath(Node node)
         {
             Assert(node != null);
-            Assert(this.Contains(node));
+            Assert(this.ContainsNode(node));
 
             return node.GetPath(Root);
         }
 
-        public IEnumerable<Node> Enumerate(TraversalOrder order) => Trees.Enumerate(this, order).Cast<Node>();
+        public IEnumerable<Node> Enumerate(TraversalOrder order) => BinaryTrees.Enumerate(this, order).Cast<Node>();
 
         public IEnumerator<T> GetEnumerator() => Nodes.Select(nd => nd.Item).GetEnumerator();
 
@@ -231,9 +216,7 @@ namespace easyLib.ADT.Trees
 
             bool improper = false;
 
-            if (childCouunt == 1)
-                LookupImproperNode(tree.Root.LeftChild ?? tree.Root.RightChild, null);
-            else
+            if (childCouunt == 2 )
                 Parallel.ForEach(new IBinaryTreeNode<T>[] { tree.Root.LeftChild, tree.Root.RightChild },
                     LookupImproperNode);
 
@@ -299,5 +282,38 @@ namespace easyLib.ADT.Trees
             return true;
 
         }
+
+        public static IEnumerable<IBinaryTreeNode<T>> Enumerate<T, N>(this IBinaryTree<T, N> tree, TraversalOrder order)
+            where N : IBinaryTreeNode<T>
+        {
+            Assert(tree != null);
+            Assert(Enum.IsDefined(typeof(TraversalOrder), order));
+
+            IBinaryTreeNode<T> node = tree.Root;
+
+            if (node == null || node.IsLeaf || order != TraversalOrder.InOrder)
+                return Trees.Enumerate(tree, order).Cast<IBinaryTreeNode<T>>();
+                       
+
+            var queue = new Queue<IBinaryTreeNode<T>>();
+            PushNode(node);
+
+            return queue;
+
+            //--------------
+            void PushNode(IBinaryTreeNode<T> parent)
+            {
+                if (parent.LeftChild != null)
+                    PushNode(parent.LeftChild);
+
+                queue.Enqueue(parent);
+
+                if (parent.RightChild != null)
+                    PushNode(parent.RightChild);
+            }
+        }
+
+        //private:
+        
     }
 }

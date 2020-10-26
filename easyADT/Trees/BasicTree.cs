@@ -37,7 +37,7 @@ namespace easyLib.ADT.Trees
         public IEnumerable<Node> GetPath(Node node)
         {
             Assert(node != null);
-            Assert(this.Contains(node));
+            Assert(this.ContainsNode(node));
 
             return node.GetPath(Root);
         }

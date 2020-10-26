@@ -13,9 +13,9 @@ namespace TestApp
         {
             var app = new Program();
 
-            app.EasyLibTest();
-            app.EasyLibIOTest();
-            app.EasyLibADTTreesTest();
+            //app.EasyLibTest();
+            //app.EasyLibIOTest();
+            app.EasyLibADTTest();
 
             app.m_mgr.Execute(new Random().Next(1, byte.MaxValue));
         }
@@ -24,7 +24,7 @@ namespace TestApp
         {
             m_mgr.AddTest(new SampleFactoryTest());
             m_mgr.AddTest(new MultiByteCodecTest());
-            m_mgr.AddTest(new ListExTest());
+            m_mgr.AddTest(new ListExTest());            
         }
 
         void EasyLibIOTest()
@@ -32,14 +32,15 @@ namespace TestApp
             m_mgr.AddTest(new BinStreamTest());
         }
 
-        void EasyLibADTTreesTest()
+        void EasyLibADTTest()
         {
-            m_mgr.AddTest(new BasicTreeNodeTest());
-            m_mgr.AddTest(new BasicTreeTest());
-            m_mgr.AddTest(new BinaryTreeNodeTest());
-            m_mgr.AddTest(new BinaryTreeTest());
-            m_mgr.AddTest(new HeapTest());
-            m_mgr.AddTest(new PriorityQueueTest());
+            //m_mgr.AddTest(new BasicTreeNodeTest());
+            //m_mgr.AddTest(new BasicTreeTest());
+            //m_mgr.AddTest(new BinaryTreeNodeTest());
+            //m_mgr.AddTest(new BinaryTreeTest());
+            //m_mgr.AddTest(new HeapTest());
+            //m_mgr.AddTest(new PriorityQueueTest());
+            m_mgr.AddTest(new BinarySearchTreeTest());
         }
     }
 }

@@ -362,6 +362,33 @@ namespace TestApp.ADT
                 }
             }
         }
+
+        public static void Display<T>(this IBinaryTreeNode<T> root, Func<T, string> strSelector)
+        {
+            System.Diagnostics.Debug.WriteLine("------------------");
+            DisplaySubTree(root, 0);
+            System.Diagnostics.Debug.WriteLine("------------------");
+
+            //------------
+            void DisplaySubTree(IBinaryTreeNode<T> node, int ind)
+            {
+                string indent = new string(' ', ind);
+                System.Diagnostics.Debug.WriteLine($"{indent}{strSelector(node.Item)}");
+
+                if (!node.IsLeaf)
+                {
+                    if (node.LeftChild == null)
+                        System.Diagnostics.Debug.WriteLine($"{indent}    x");
+                    else
+                        DisplaySubTree(node.LeftChild, ind + 4);
+
+                    if (node.RightChild == null)
+                        System.Diagnostics.Debug.WriteLine($"{indent}    x");
+                    else
+                        DisplaySubTree(node.RightChild, ind + 4);
+                }
+            }
+        }
     }
 }
 

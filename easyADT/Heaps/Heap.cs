@@ -5,12 +5,13 @@ using static easyLib.DebugHelper;
 
 namespace easyLib.ADT.Heaps
 {
-    public interface IHeap<out T>
+    public interface IHeap<T>
     {
         int Count { get; }
         bool IsEmpty { get; }
         T Peek();
-        T Pop();
+        public bool Contains(T item);
+        //T Pop();
     }
     //------------------------------------------------------
 
